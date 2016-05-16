@@ -11,139 +11,157 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
+import javax.xml.soap.Text;
 import java.lang.invoke.MethodHandles;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class LoginController {
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+public class RegisterController {
 
   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   @FXML
-  Pane loginFormPane;
+  Pane registerPane;
   @FXML
-  Pane loginProgressPane;
-  @FXML
-  CheckBox autoLoginCheckBox;
+  Pane registerRoot;
   @FXML
   TextField usernameInput;
   @FXML
   TextField passwordInput;
   @FXML
-  Button loginButton;
+  TextField emailInput;
   @FXML
-  Label loginErrorLabel;
+  TextField usernameErrorMessage;
   @FXML
-  Pane loginRoot;
+  TextField passwordErrorMessage;
   @FXML
-  Button loginForgotButton;
+  TextField emailErrorMessage;
   @FXML
-  Button loginSignupButton;
+  Button registerButton;
+  @FXML
+  Button cancelButton;
+  @FXML
+  ImageView usernameStatusImageView;
+  @FXML
+  ImageView passwordStatusImageView;
+  @FXML
+  ImageView emailStatusImageView;
+  @FXML
+  Label registerStatus;
+
+  Image pass = new Image("images\\status\\pass.png"); //the check for the image location
+  Image fail = new Image("images\\status\\fail.png"); //the X for the image location
 
   @Resource
   UserService userService;
   @Resource
   PreferencesService preferencesService;
 
-  private boolean autoLogin;
 
   @FXML
   private void initialize() {
-    loginProgressPane.setVisible(false);
-    loginErrorLabel.managedProperty().bind(loginErrorLabel.visibleProperty());
-    autoLogin = true;
+    registerPane.setVisible(true);
   }
 
   public void display() {
-    setShowLoginProgress(false);
 
-    LoginPrefs loginPrefs = preferencesService.getPreferences().getLogin();
-    String username = loginPrefs.getUsername();
-    String password = loginPrefs.getPassword();
-    boolean isAutoLogin = loginPrefs.getAutoLogin();
+  }
 
-    // Fill the form even if autoLogin is true, since user may cancel the login
-    usernameInput.setText(Strings.nullToEmpty(username));
-    autoLoginCheckBox.setSelected(isAutoLogin);
-
-    if (loginPrefs.getAutoLogin() && !isNullOrEmpty(username) && !isNullOrEmpty(password) && autoLogin) {
-      autoLogin = false;
-      login(username, password, true);
-    } else if (isNullOrEmpty(username)) {
-      usernameInput.requestFocus();
+  @FXML
+  private void cancelButtonClicked(){
+    //close out of window...
+  }
+  @FXML
+  private void registerButtonClicked(){
+    if (! isUsernameValid().equals(null)){
+      usernameStatusImageView.setImage(fail);
+      usernameStatusImageView.setVisible(true);
+      usernameErrorMessage.setText(isUsernameValid());
+      usernameErrorMessage.setVisible(true);
     } else {
-      passwordInput.requestFocus();
+      usernameStatusImageView.setImage(pass);
+      usernameStatusImageView.setVisible(true);
+      usernameErrorMessage.setVisible(false);
+    }
+
+    if (! isPasswordValid().equals(null)){
+      passwordStatusImageView.setImage(fail);
+      passwordStatusImageView.setVisible(true);
+      passwordErrorMessage.setText(isUsernameValid());
+      passwordErrorMessage.setVisible(true);
+    } else {
+      passwordStatusImageView.setImage(pass);
+      passwordStatusImageView.setVisible(true);
+      passwordErrorMessage.setVisible(false);
+    }
+
+    if (! isEmailValid().equals(null)){
+      emailStatusImageView.setImage(fail);
+      emailStatusImageView.setVisible(true);
+      emailErrorMessage.setText(isUsernameValid());
+      emailErrorMessage.setVisible(true);
+    } else {
+      emailStatusImageView.setImage(pass);
+      emailStatusImageView.setVisible(true);
+      emailErrorMessage.setVisible(false);
+    }
+    if (isUsernameValid().equals(null) && isPasswordValid().equals(null) && isEmailValid().equals(null)){
+      //send verification email
+      sendVerificationEmail();
+      registerStatus.setText("Please check your email to verify your account");
+      registerStatus.setVisible(true);
+      //when the email has been verified.... idk how
+      registerStatus.setText("Your email has been verified");
+      //register account
+      registerAccount();
+      registerStatus.setText("Your account has been registered, you may now login");
+      //close window
     }
   }
 
-  private void setShowLoginProgress(boolean show) {
-    loginFormPane.setVisible(!show);
-    loginProgressPane.setVisible(show);
-    loginButton.setDisable(show);
-    loginErrorLabel.setVisible(false);
+  //send the verification email
+  private void sendVerificationEmail(){}
+  //register the account
+  private void registerAccount(){}
+
+  //public for junit tests
+  public String isUsernameValid(){
+    if (usernameInput.getText().startsWith(","))
+      return "Username may not start with a comma";
+    else if (usernameInput.getText().length() < 1 || usernameInput.getText().length() > 20)
+      return "Username must be between 1 and 20 characters long";
+    return null;
   }
 
-  private void login(String username, String password, boolean autoLogin) {
-    setShowLoginProgress(true);
-
-    userService.login(username, password, autoLogin)
-        .exceptionally(throwable -> {
-          onLoginFailed(throwable);
-          return null;
-        });
+  private String isPasswordValid(){
+    if (passwordInput.getText().length()>0)
+      return null;
+    return "Enter a password";
   }
 
-  private void onLoginFailed(Throwable e) {
-    logger.warn("Login failed", e);
-    Platform.runLater(() -> {
-      loginErrorLabel.setText(e.getCause().getLocalizedMessage());
-
-      setShowLoginProgress(false);
-      loginErrorLabel.setVisible(true);
-    });
-  }
-
-  @FXML
-  void loginButtonClicked() {
-    String username = usernameInput.getText();
-    String password = passwordInput.getText();
-
-    password = Hashing.sha256().hashString(password, UTF_8).toString();
-
-    boolean autoLogin = autoLoginCheckBox.isSelected();
-
-    login(username, password, autoLogin);
-  }
-
-  @FXML
-  public void onCancelLoginButtonClicked() {
-    userService.cancelLogin();
-    setShowLoginProgress(false);
-  }
-
-  public Pane getRoot() {
-    return loginRoot;
-  }
-
-  //ADDING NOAHJ'S CODE HERE
-  @FXML
-  void loginForgotButtonClicked() {
-   //idk
-  }
-
-  @FXML
-  void loginSignupButtonClicked() {
-    new RegisterController();
+  //public for junit tests
+  public String isEmailValid(){
+    Pattern pattern = Pattern.compile(".+@.+\\.[a-z]+");
+    if (pattern.matcher(emailInput.getText()).matches()) {
+      return null;
+    }
+    return "Invalid email";
   }
 }
 
 /*
+  THE PYTHON CODE FOR  CREATING AN ACCOUNT...
 def command_create_account(self, message):
         login = message['login']
         user_email = message['email']
