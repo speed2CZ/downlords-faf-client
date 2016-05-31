@@ -38,7 +38,7 @@ public class UserMenuControllerTest extends AbstractPlainJavaFxTest {
 
     Platform.runLater(() -> instance.onLogOutButtonClicked());
 
-    assertTrue(latch.await(2, TimeUnit.SECONDS));
+    assertTrue(latch.await(5, TimeUnit.SECONDS));
     assertThat(getStage().isShowing(), is(false));
   }
 }
