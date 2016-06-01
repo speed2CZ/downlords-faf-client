@@ -17,19 +17,27 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="settingsRoot" maxHeight="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.40" fx:controller="com.faforever.client.preferences.SettingsController">
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="settingsRoot" maxHeight="1.7976931348623157E308"
+      xmlns="http://javafx.com/javafx/8.0.91" fx:controller="com.faforever.client.preferences.SettingsController">
   <children>
-    <HBox styleClass="settings-head">
+    <Separator prefWidth="200.0"/>
+    <HBox prefHeight="17.0" prefWidth="351.0">
       <children>
-        <Label text="%settings.windowTitle" />
+        <Label text="settings.windowTitle"/>
       </children>
     </HBox>
-    <Separator prefWidth="200.0" />
-    <TabPane rotateGraphic="true" side="LEFT" styleClass="settings" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+    <TabPane prefHeight="429.0" prefWidth="351.0" tabClosingPolicy="UNAVAILABLE">
       <tabs>
         <Tab>
+          <graphic>
+            <Group>
+              <children>
+                <Label text="%settings.general"/>
+              </children>
+            </Group>
+          </graphic>
           <content>
-            <VBox styleClass="settings-content">
+            <VBox prefHeight="200.0" prefWidth="100.0">
               <children>
                 <TitledPane animated="false" collapsible="false" text="%settings.general">
                   <content>
@@ -48,19 +56,19 @@
               </children>
             </VBox>
           </content>
+        </Tab>
+        <Tab>
           <graphic>
             <Group>
               <children>
-                <Label rotate="90.0" text="%settings.general" />
+                <Label text="%settings.chat"/>
               </children>
             </Group>
           </graphic>
-        </Tab>
-        <Tab>
           <content>
-            <VBox styleClass="settings-content">
+            <VBox prefHeight="200.0" prefWidth="100.0">
               <children>
-                <TitledPane collapsible="false" text="%settings.chat">
+                <TitledPane animated="false" collapsible="false" text="%settings.chat">
                   <content>
                     <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                       <children>
@@ -69,7 +77,7 @@
                         <Label text="%settings.chat.previews" />
                         <CheckBox fx:id="imagePreviewCheckBox" mnemonicParsing="false" text="%settings.chat.previewImages" />
                         <Label text="%settings.chat.colors" />
-                        <VBox spacing="5.0">
+                        <VBox prefHeight="200.0" prefWidth="100.0">
                           <children>
                             <RadioButton fx:id="defaultColorsToggle" mnemonicParsing="false"
                                          text="%settings.chat.colorMode.default" toggleGroup="$colorModeToggleGroup">
@@ -92,21 +100,21 @@
               </children>
             </VBox>
           </content>
+        </Tab>
+        <Tab>
           <graphic>
             <Group>
               <children>
-                <Label rotate="90.0" text="%settings.chat" />
+                <Label text="%settings.notifications.toasts"/>
               </children>
             </Group>
           </graphic>
-        </Tab>
-        <Tab>
           <content>
-            <VBox styleClass="settings-content">
+            <VBox prefHeight="200.0" prefWidth="100.0">
               <children>
-                <TitledPane collapsible="false" text="%settings.notifications.toasts">
+                <TitledPane animated="false" collapsible="false" text="%settings.notifications.toasts">
                   <content>
-                    <VBox>
+                    <VBox prefHeight="150.0" prefWidth="100.0">
                       <children>
                         <CheckBox fx:id="enableToastsCheckBox" mnemonicParsing="false" text="%settings.notifications.enableToasts" />
                         <GridPane vgap="5.0">
@@ -129,22 +137,22 @@
                     </VBox>
                   </content>
                 </TitledPane>
-                <TitledPane collapsible="false" text="%settings.sounds">
+                <TitledPane animated="false" collapsible="false" text="%settings.sounds">
                   <content>
-                    <VBox>
+                    <VBox prefHeight="0.0" prefWidth="349.0">
                       <children>
                         <CheckBox fx:id="enableSoundsCheckBox" mnemonicParsing="false" text="%settings.sounds.enable" />
                       </children>
                     </VBox>
                   </content>
                 </TitledPane>
-                <TitledPane animated="false" collapsible="false" text="%settings.notifications">
+                <TitledPane collapsible="false" text="%settings.notifications">
                   <content>
                     <GridPane>
                       <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
                       </columnConstraints>
                       <rowConstraints>
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -157,14 +165,12 @@
                       </rowConstraints>
                       <children>
                         <Label text="%settings.notifications.displayToast" GridPane.columnIndex="1" />
-                        <Label text="%settings.notifications.playSound" GridPane.columnIndex="2" />
                         <Label text="%settings.notifications.friendOnline" GridPane.rowIndex="1" />
+                        <Label text="%settings.notifications.friendOffline" GridPane.rowIndex="2"/>
                         <Label text="%settings.notifications.friendJoinsGame" GridPane.rowIndex="3" />
                         <Label text="%settings.notifications.friendPlaysGame" GridPane.rowIndex="4" />
-                        <Label text="%settings.notifications.friendOffline" GridPane.rowIndex="2" />
                         <Label text="%settings.notifications.pmReceived" GridPane.rowIndex="5" />
-                        <Label layoutX="20.0" layoutY="177.0" text="%settings.notifications.ranked1v1"
-                               GridPane.rowIndex="6"/>
+                        <Label text="%settings.notifications.ranked1v1" GridPane.rowIndex="6"/>
                         <CheckBox fx:id="displayFriendOnlineToastCheckBox" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <CheckBox fx:id="displayFriendOfflineToastCheckBox" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <CheckBox fx:id="playFriendOnlineSoundCheckBox" mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="1" />
@@ -179,6 +185,7 @@
                                   mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
                         <CheckBox fx:id="playRanked1v1SoundCheckBox" layoutX="260.0" layoutY="177.0"
                                   mnemonicParsing="false" GridPane.columnIndex="2" GridPane.rowIndex="6"/>
+                        <Label text="%settings.notifications.playSound" GridPane.columnIndex="2"/>
                       </children>
                     </GridPane>
                   </content>
@@ -186,26 +193,26 @@
               </children>
             </VBox>
           </content>
+        </Tab>
+        <Tab>
           <graphic>
             <Group>
               <children>
-                <Label rotate="90.0" text="%settings.notifications" />
+                <Label text="%settings.fa.title"/>
               </children>
             </Group>
           </graphic>
-        </Tab>
-        <Tab>
           <content>
-            <VBox styleClass="settings-content">
+            <VBox prefHeight="200.0" prefWidth="100.0">
               <children>
-                <TitledPane animated="false" collapsible="false" text="%settings.fa.title">
+                <TitledPane animated="false" text="%settings.fa.title">
                   <content>
-                    <VBox spacing="10.0">
+                    <VBox prefHeight="200.0" prefWidth="100.0">
                       <children>
                         <Label text="%settings.fa.gamePort" />
                         <TextField fx:id="gamePortTextField" maxWidth="100.0" />
                         <Label text="%settings.fa.gameLocation" />
-                        <HBox spacing="10.0">
+                        <HBox prefHeight="37.0" prefWidth="461.0">
                           <children>
                             <TextField fx:id="gameLocationTextField" HBox.hgrow="ALWAYS" />
                             <Button fx:id="gameLocationButton" mnemonicParsing="false" text="Button" />
@@ -219,15 +226,14 @@
               </children>
             </VBox>
           </content>
-          <graphic>
-            <Group>
-              <children>
-                <Label layoutX="22.0" rotate="90.0" text="%settings.fa.title" />
-              </children>
-            </Group>
-          </graphic>
         </Tab>
       </tabs>
     </TabPane>
+    <HBox alignment="CENTER" spacing="5.0">
+      <children>
+        <Button fx:id="saveButton" mnemonicParsing="false" text="%settings.save"/>
+        <Button fx:id="cancelButton" mnemonicParsing="false" text="%settings.cancel"/>
+      </children>
+    </HBox>
   </children>
 </VBox>
