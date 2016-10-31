@@ -1,14 +1,18 @@
 package com.faforever.client.mod;
 
 import com.faforever.client.i18n.I18n;
+import com.faforever.client.io.Bytes;
 import com.faforever.client.notification.ImmediateNotification;
 import com.faforever.client.notification.NotificationService;
 import com.faforever.client.notification.ReportAction;
 import com.faforever.client.notification.Severity;
 import com.faforever.client.reporting.ReportingService;
+import com.faforever.client.util.IdenticonUtil;
+import com.faforever.client.util.TimeService;
 import javafx.collections.ListChangeListener;
 import javafx.collections.WeakListChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,6 +20,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 
@@ -23,24 +29,23 @@ import static java.util.Collections.singletonList;
 
 public class ModDetailController {
 
-  @FXML
-  Label progressLabel;
-  @FXML
-  Button uninstallButton;
-  @FXML
-  Button installButton;
-  @FXML
-  ImageView thumbnailImageView;
-  @FXML
-  Label nameLabel;
-  @FXML
-  Label authorLabel;
-  @FXML
-  ProgressBar progressBar;
-  @FXML
-  Label modDescriptionLabel;
-  @FXML
-  Node modDetailRoot;
+  public Label scoreLabel;
+  public Label updatedLabel;
+  public Label sizeLabel;
+  public Label installationsLabel;
+  public Label versionLabel;
+  public Label dependenciesTitle;
+  public VBox dependenciesContainer;
+  public Label progressLabel;
+  public Button uninstallButton;
+  public Button installButton;
+  public ImageView thumbnailImageView;
+  public Label nameLabel;
+  public Label authorLabel;
+  public ProgressBar progressBar;
+  public Label modDescriptionLabel;
+  public Node modDetailRoot;
+  public Group reviewGroup;
 
   @Resource
   ModService modService;
@@ -48,6 +53,8 @@ public class ModDetailController {
   NotificationService notificationService;
   @Resource
   I18n i18n;
+  @Resource
+  TimeService timeService;
   @Resource
   ReportingService reportingService;
 
@@ -85,6 +92,14 @@ public class ModDetailController {
         }
       }
     };
+
+    // TODO hidden until review system is implemented
+    reviewGroup.setVisible(false);
+    reviewGroup.setManaged(false);
+
+    // TODO hidden until dependencies are available
+    dependenciesTitle.setManaged(false);
+    dependenciesContainer.setManaged(false);
   }
 
   public void onCloseButtonClicked() {
@@ -110,9 +125,18 @@ public class ModDetailController {
     installButton.setVisible(!modInstalled);
     uninstallButton.setVisible(modInstalled);
 
-    modDescriptionLabel.textProperty().bind(mod.descriptionProperty());
+    modDescriptionLabel.setText(mod.getDescription());
     modService.getInstalledMods().addListener(new WeakListChangeListener<>(installStatusChangeListener));
     setInstalled(modService.isModInstalled(mod.getId()));
+
+    updatedLabel.setText(timeService.asDate(mod.getPublishDate()));
+    sizeLabel.setText(Bytes.formatSize(getModSize(), i18n.getLocale()));
+    installationsLabel.setText(String.format(i18n.getLocale(), "%d", mod.getDownloads()));
+    versionLabel.setText(mod.getVersion());
+  }
+
+  private long getModSize() {
+    return modService.getModSize(mod);
   }
 
   @FXML

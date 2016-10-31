@@ -13,6 +13,7 @@ import com.faforever.client.task.CompletableTask;
 import com.faforever.client.task.TaskService;
 import com.faforever.client.util.ConcurrentUtil;
 import com.faforever.client.util.IdenticonUtil;
+import com.google.api.client.http.HttpMethods;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -36,6 +37,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -406,6 +408,22 @@ public class ModServiceImpl implements ModService {
   @Override
   public void evictModsCache() {
     fafService.evictModsCache();
+  }
+
+  @Override
+  public long getModSize(ModInfoBean mod) {
+    HttpURLConnection conn = null;
+    try {
+      conn = (HttpURLConnection) mod.getDownloadUrl().openConnection();
+      conn.setRequestMethod(HttpMethods.HEAD);
+      return conn.getContentLength();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      if (conn != null) {
+        conn.disconnect();
+      }
+    }
   }
 
   private CompletionStage<List<ModInfoBean>> getTopElements(Comparator<? super ModInfoBean> comparator, int count) {

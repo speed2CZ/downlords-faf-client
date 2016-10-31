@@ -63,4 +63,9 @@ public interface ModService {
   Image loadThumbnail(ModInfoBean mod);
 
   void evictModsCache();
+
+  /**
+   * Returns the download size of the specified mod in bytes.
+   */
+  long getModSize(ModInfoBean mod);
 }

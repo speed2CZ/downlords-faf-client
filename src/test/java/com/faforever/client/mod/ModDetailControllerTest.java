@@ -5,6 +5,7 @@ import com.faforever.client.notification.ImmediateNotification;
 import com.faforever.client.notification.NotificationService;
 import com.faforever.client.reporting.ReportingService;
 import com.faforever.client.test.AbstractPlainJavaFxTest;
+import com.faforever.client.util.TimeService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 public class ModDetailControllerTest extends AbstractPlainJavaFxTest {
 
+
   @Mock
   private ReportingService reportingService;
   @Mock
@@ -33,6 +35,8 @@ public class ModDetailControllerTest extends AbstractPlainJavaFxTest {
   private ModService modService;
   @Mock
   private I18n i18n;
+  @Mock
+  private TimeService timeService;
 
   private ModDetailController instance;
   private ObservableList<ModInfoBean> installedMods;
@@ -44,6 +48,7 @@ public class ModDetailControllerTest extends AbstractPlainJavaFxTest {
     instance.notificationService = notificationService;
     instance.reportingService = reportingService;
     instance.i18n = i18n;
+    instance.timeService = timeService;
 
     installedMods = FXCollections.observableArrayList();
     when(modService.getInstalledMods()).thenReturn(installedMods);
