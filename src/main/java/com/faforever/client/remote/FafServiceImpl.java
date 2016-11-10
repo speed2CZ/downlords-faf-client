@@ -234,4 +234,9 @@ public class FafServiceImpl implements FafService {
             .map(FeaturedModBean::fromFeaturedMod)
             .collect(Collectors.toList()));
   }
+
+  @Override
+  public void restoreGameSession(int gameId) {
+    fafServerAccessor.restoreGameSession(gameId);
+  }
 }

@@ -14,7 +14,8 @@ public enum ClientMessageType {
   LOGIN("hello"),
   GAME_MATCH_MAKING("game_matchmaking"),
   AVATAR("avatar"),
-  SDP("sdp");
+  SDP("sdp"),
+  RESTORE_GAME_SESSION("restore_game_session");
 
   private static Map<String, ClientMessageType> fromString;
 

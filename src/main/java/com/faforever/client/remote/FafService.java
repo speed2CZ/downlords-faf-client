@@ -94,4 +94,6 @@ public interface FafService {
   void sendSdp(int remotePlayerId, String sdp);
 
   CompletableFuture<List<FeaturedModBean>> getFeaturedMods();
+
+  void restoreGameSession(int gameId);
 }

@@ -1,10 +1,6 @@
 package com.faforever.client.fa.relay.ice;
 
 import com.faforever.client.chat.PlayerInfoBean;
-import com.faforever.client.game.KnownFeaturedMod;
-import com.faforever.client.fa.relay.ice.event.GpgGameMessageEvent;
-import com.faforever.client.fa.relay.ice.event.IceAdapterStateChanged;
-import com.faforever.client.player.PlayerService;
 import com.faforever.client.fa.relay.ConnectToPeerMessage;
 import com.faforever.client.fa.relay.DisconnectFromPeerMessage;
 import com.faforever.client.fa.relay.GpgClientCommand;
@@ -14,9 +10,14 @@ import com.faforever.client.fa.relay.JoinGameMessage;
 import com.faforever.client.fa.relay.LobbyMode;
 import com.faforever.client.fa.relay.event.GameFullEvent;
 import com.faforever.client.fa.relay.event.RehostRequestEvent;
+import com.faforever.client.fa.relay.ice.event.GpgGameMessageEvent;
+import com.faforever.client.fa.relay.ice.event.IceAdapterStateChanged;
+import com.faforever.client.game.KnownFeaturedMod;
+import com.faforever.client.player.PlayerService;
 import com.faforever.client.remote.FafService;
 import com.faforever.client.remote.domain.GameLaunchMessage;
 import com.faforever.client.remote.domain.SdpRecordServerMessage;
+import com.faforever.client.user.event.LoginSuccessEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.nbarraille.jjsonrpc.JJsonPeer;
@@ -85,8 +86,15 @@ public class IceAdapterImpl implements IceAdapter {
   public void onIceAdapterStateChanged(IceAdapterStateChanged event) {
     switch (event.getNewState()) {
       case "Disconnected":
-        iceAdapterProxy.quit();
+        stop();
         break;
+    }
+  }
+
+  @Subscribe
+  public void onLoginSuccess(LoginSuccessEvent event) {
+    if (iceAdapterProxy != null) {
+      iceAdapterProxy.gatherSdp();
     }
   }
 
@@ -191,5 +199,6 @@ public class IceAdapterImpl implements IceAdapter {
   @PreDestroy
   public void stop() {
     iceAdapterProxy.quit();
+    iceAdapterProxy = null;
   }
 }

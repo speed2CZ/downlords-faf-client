@@ -37,6 +37,7 @@ import com.faforever.client.remote.domain.NoticeMessage;
 import com.faforever.client.remote.domain.RatingRange;
 import com.faforever.client.remote.domain.RemoveFoeMessage;
 import com.faforever.client.remote.domain.RemoveFriendMessage;
+import com.faforever.client.remote.domain.RestoreGameSessionClientMessage;
 import com.faforever.client.remote.domain.SelectAvatarMessage;
 import com.faforever.client.remote.domain.SerializableMessage;
 import com.faforever.client.remote.domain.ServerCommand;
@@ -53,7 +54,9 @@ import com.faforever.client.remote.gson.ServerMessageTypeAdapter;
 import com.faforever.client.remote.gson.ServerMessageTypeTypeAdapter;
 import com.faforever.client.remote.gson.VictoryConditionTypeAdapter;
 import com.faforever.client.update.ClientUpdateService;
+import com.faforever.client.user.event.LoginSuccessEvent;
 import com.github.nocatch.NoCatch;
+import com.google.common.eventbus.EventBus;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -108,6 +111,8 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
   NotificationService notificationService;
   @Resource
   I18n i18n;
+  @Resource
+  EventBus eventBus;
 
   @Value("${lobby.host}")
   String lobbyHost;
@@ -115,7 +120,6 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
   int lobbyPort;
 
   private Task<Void> fafConnectionTask;
-  private String localIp;
   private ServerWriter serverWriter;
   private CompletableFuture<LoginMessage> loginFuture;
   private CompletableFuture<SessionMessage> sessionFuture;
@@ -199,7 +203,7 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
       @Override
       protected Void call() throws Exception {
         while (!isCancelled()) {
-          logger.info("Trying to connect to FAF server at {}:{}", lobbyHost, lobbyPort);
+          logger.info("Connecting to FAF server at {}:{}", lobbyHost, lobbyPort);
           connectionState.set(ConnectionState.CONNECTING);
 
           try (Socket fafServerSocket = new Socket(lobbyHost, lobbyPort);
@@ -207,8 +211,6 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
             FafServerAccessorImpl.this.fafServerSocket = fafServerSocket;
 
             fafServerSocket.setKeepAlive(true);
-
-            localIp = fafServerSocket.getLocalAddress().getHostAddress();
 
             serverWriter = createServerWriter(outputStream);
 
@@ -262,10 +264,7 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
 
   @Override
   public CompletionStage<GameLaunchMessage> requestJoinGame(int gameId, String password) {
-    JoinGameMessage joinGameMessage = new JoinGameMessage(
-        gameId,
-        password
-    );
+    JoinGameMessage joinGameMessage = new JoinGameMessage(gameId, password);
 
     gameLaunchFuture = new CompletableFuture<>();
     writeToServer(joinGameMessage);
@@ -341,6 +340,11 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
     return NoCatch.noCatch(() -> avatarsFuture.get(10, TimeUnit.SECONDS));
   }
 
+  @Override
+  public void restoreGameSession(int gameId) {
+    writeToServer(new RestoreGameSessionClientMessage(gameId));
+  }
+
   private ServerWriter createServerWriter(OutputStream outputStream) throws IOException {
     ServerWriter serverWriter = new ServerWriter(outputStream);
     serverWriter.registerMessageSerializer(new ClientMessageSerializer(login, sessionId), ClientMessage.class);
@@ -379,7 +383,7 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
     try {
       ServerMessage serverMessage = gson.fromJson(jsonString, ServerMessage.class);
       if (serverMessage == null) {
-        logger.debug("Discarding unimplemented server message: {}", jsonString);
+        logger.trace("Discarding unimplemented server message: {}", jsonString);
         return;
       }
 
@@ -410,6 +414,7 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
 
   private void onFafLoginSucceeded(LoginMessage loginServerMessage) {
     logger.info("FAF login succeeded");
+    eventBus.post(new LoginSuccessEvent(loginServerMessage.getLogin()));
 
     if (loginFuture != null) {
       loginFuture.complete(loginServerMessage);
@@ -426,7 +431,7 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
 
   private void logIn(String username, String password) {
     String uniqueId = uidService.generate(String.valueOf(sessionId.get()), preferencesService.getFafDataDirectory().resolve("uid.log"));
-    writeToServer(new LoginClientMessage(username, password, sessionId.get(), uniqueId, localIp));
+    writeToServer(new LoginClientMessage(username, password, sessionId.get(), uniqueId));
   }
 
   private void onGameLaunchInfo(GameLaunchMessage gameLaunchMessage) {

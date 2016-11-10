@@ -9,15 +9,13 @@ public class LoginClientMessage extends ClientMessage {
   private String password;
   private long session;
   private String uniqueId;
-  private String localIp;
 
-  public LoginClientMessage(String username, String password, long session, String uniqueId, String localIp) {
+  public LoginClientMessage(String username, String password, long session, String uniqueId) {
     super(ClientMessageType.LOGIN);
     this.setLogin(username);
     this.setPassword(password);
     this.setSession(session);
     this.setUniqueId(uniqueId);
-    this.setLocalIp(localIp);
   }
 
   @Override
@@ -55,13 +53,5 @@ public class LoginClientMessage extends ClientMessage {
 
   public void setUniqueId(String uniqueId) {
     this.uniqueId = uniqueId;
-  }
-
-  public String getLocalIp() {
-    return localIp;
-  }
-
-  public void setLocalIp(String localIp) {
-    this.localIp = localIp;
   }
 }

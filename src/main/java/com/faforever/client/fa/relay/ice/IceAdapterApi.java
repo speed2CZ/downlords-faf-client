@@ -21,4 +21,6 @@ interface IceAdapterApi {
   void sendToGpgNet(String header, List<Object> chunks);
 
   void status(String header, List<Object> chunks);
+
+  void gatherSdp();
 }

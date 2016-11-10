@@ -60,4 +60,5 @@ public interface FafServerAccessor {
 
   List<Avatar> getAvailableAvatars();
 
+  void restoreGameSession(int gameId);
 }

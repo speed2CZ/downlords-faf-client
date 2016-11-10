@@ -1,10 +1,8 @@
 package com.faforever.client.user;
 
-import com.faforever.client.api.FafApiAccessor;
 import com.faforever.client.preferences.PreferencesService;
 import com.faforever.client.remote.FafService;
 import com.faforever.client.remote.domain.LoginMessage;
-import com.faforever.client.user.event.LoginSuccessEvent;
 import com.google.common.eventbus.EventBus;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
@@ -65,7 +63,6 @@ public class UserServiceImpl implements UserService {
           preferencesService.storeInBackground();
 
           loggedIn.set(true);
-          eventBus.post(new LoginSuccessEvent(login));
         })
         .whenComplete((aVoid, throwable) -> {
           if (throwable != null) {

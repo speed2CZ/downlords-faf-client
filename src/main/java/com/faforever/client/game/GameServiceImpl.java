@@ -2,9 +2,10 @@ package com.faforever.client.game;
 
 import com.faforever.client.fa.ForgedAllianceService;
 import com.faforever.client.fa.RatingMode;
+import com.faforever.client.fa.relay.event.RehostRequestEvent;
+import com.faforever.client.fa.relay.ice.IceAdapter;
 import com.faforever.client.fx.JavaFxUtil;
 import com.faforever.client.i18n.I18n;
-import com.faforever.client.fa.relay.ice.IceAdapter;
 import com.faforever.client.map.MapService;
 import com.faforever.client.net.ConnectionState;
 import com.faforever.client.notification.Action;
@@ -17,13 +18,13 @@ import com.faforever.client.patch.GameUpdateService;
 import com.faforever.client.player.PlayerService;
 import com.faforever.client.preferences.PreferencesService;
 import com.faforever.client.rankedmatch.MatchmakerMessage;
-import com.faforever.client.fa.relay.event.RehostRequestEvent;
 import com.faforever.client.remote.FafService;
 import com.faforever.client.remote.domain.GameInfoMessage;
 import com.faforever.client.remote.domain.GameLaunchMessage;
 import com.faforever.client.remote.domain.GameState;
 import com.faforever.client.replay.ReplayService;
 import com.faforever.client.reporting.ReportingService;
+import com.faforever.client.user.event.LoginSuccessEvent;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -435,6 +436,15 @@ public class GameServiceImpl implements GameService {
             gameInfoBean.getMapFolderName(),
             new HashSet<>(gameInfoBean.getSimMods().values())
         )));
+  }
+
+  @Subscribe
+  public void onLoginSuccess(LoginSuccessEvent event) {
+    GameInfoBean currentGame = getCurrentGame();
+    if (isRunning() && currentGame != null) {
+      logger.info("Asking server to restore game session (Game ID: {})", currentGame.getUid());
+      fafService.restoreGameSession(currentGame.getUid());
+    }
   }
 
   @Subscribe
