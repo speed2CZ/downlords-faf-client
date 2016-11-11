@@ -210,8 +210,6 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
                OutputStream outputStream = fafServerSocket.getOutputStream()) {
             FafServerAccessorImpl.this.fafServerSocket = fafServerSocket;
 
-            fafServerSocket.setKeepAlive(true);
-
             serverWriter = createServerWriter(outputStream);
 
             String version = clientUpdateService.getCurrentVersion().toString();
