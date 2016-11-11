@@ -18,6 +18,7 @@ import com.faforever.client.rankedmatch.StopSearchRanked1V1ClientMessage;
 import com.faforever.client.remote.domain.ClientMessageType;
 import com.faforever.client.remote.domain.FafServerMessage;
 import com.faforever.client.remote.domain.FafServerMessageType;
+import com.faforever.client.remote.domain.GameEndedMessage;
 import com.faforever.client.remote.domain.GameLaunchMessage;
 import com.faforever.client.remote.domain.InitSessionMessage;
 import com.faforever.client.remote.domain.LoginClientMessage;
@@ -25,6 +26,7 @@ import com.faforever.client.remote.domain.LoginMessage;
 import com.faforever.client.remote.domain.MessageTarget;
 import com.faforever.client.remote.domain.NoticeMessage;
 import com.faforever.client.remote.domain.RatingRange;
+import com.faforever.client.remote.domain.SerializableMessage;
 import com.faforever.client.remote.domain.SessionMessage;
 import com.faforever.client.remote.gson.ClientMessageTypeTypeAdapter;
 import com.faforever.client.remote.gson.MessageTargetTypeAdapter;
@@ -33,6 +35,7 @@ import com.faforever.client.remote.gson.ServerMessageTypeTypeAdapter;
 import com.faforever.client.remote.io.QDataInputStream;
 import com.faforever.client.test.AbstractPlainJavaFxTest;
 import com.faforever.client.update.ClientUpdateService;
+import com.google.common.eventbus.EventBus;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -53,11 +56,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -72,6 +72,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -112,23 +114,25 @@ public class FafServerAccessorImplTest extends AbstractPlainJavaFxTest {
   private I18n i18n;
   @Mock
   private ThreadPoolExecutor threadPoolExecutor;
+  @Mock
+  private EventBus eventBus;
+  @Mock
+  private ServerWriter serverWriter;
 
   private FafServerAccessorImpl instance;
   private ServerSocket fafLobbyServerSocket;
   private Socket localToServerSocket;
   private ServerWriter serverToClientWriter;
   private boolean stopped;
-  private BlockingQueue<String> messagesReceivedByFafServer;
   private CountDownLatch serverToClientReadyLatch;
 
   @Before
   public void setUp() throws Exception {
     serverToClientReadyLatch = new CountDownLatch(1);
-    messagesReceivedByFafServer = new ArrayBlockingQueue<>(10);
 
     startFakeFafLobbyServer();
 
-    instance = new FafServerAccessorImpl();
+    instance = new FafServerAccessorImpl(outputStream -> serverWriter);
     instance.i18n = i18n;
     instance.notificationService = notificationService;
     instance.preferencesService = preferencesService;
@@ -137,6 +141,7 @@ public class FafServerAccessorImplTest extends AbstractPlainJavaFxTest {
     instance.lobbyPort = fafLobbyServerSocket.getLocalPort();
     instance.clientUpdateService = clientUpdateService;
     instance.threadPoolExecutor = threadPoolExecutor;
+    instance.eventBus = eventBus;
 
     LoginPrefs loginPrefs = new LoginPrefs();
     loginPrefs.setUsername("junit");
@@ -173,17 +178,8 @@ public class FafServerAccessorImplTest extends AbstractPlainJavaFxTest {
         serverToClientReadyLatch.countDown();
 
         while (!stopped) {
-          int blockSize = qDataInputStream.readInt();
-          String json = qDataInputStream.readQString();
-
-          if (blockSize > json.length() * 2) {
-            // Username
-            qDataInputStream.readQString();
-            // Session ID
-            qDataInputStream.readQString();
-          }
-
-          messagesReceivedByFafServer.add(json);
+          qDataInputStream.readInt();
+          qDataInputStream.readQString();
         }
       } catch (IOException e) {
         System.out.println("Closing fake FAF lobby server: " + e.getMessage());
@@ -207,8 +203,7 @@ public class FafServerAccessorImplTest extends AbstractPlainJavaFxTest {
 
     CompletableFuture<LoginMessage> loginFuture = instance.connectAndLogIn(username, password).toCompletableFuture();
 
-    String json = messagesReceivedByFafServer.poll(TIMEOUT, TIMEOUT_UNIT);
-    InitSessionMessage initSessionMessage = gson.fromJson(json, InitSessionMessage.class);
+    InitSessionMessage initSessionMessage = interceptMessage(InitSessionMessage.class);
 
     assertThat(initSessionMessage.getCommand(), is(ClientMessageType.ASK_SESSION));
     assertThat(initSessionMessage.getVersion(), is("1.0"));
@@ -218,8 +213,7 @@ public class FafServerAccessorImplTest extends AbstractPlainJavaFxTest {
     sessionMessage.setSession(sessionId);
     sendFromServer(sessionMessage);
 
-    json = messagesReceivedByFafServer.poll(TIMEOUT, TIMEOUT_UNIT);
-    LoginClientMessage loginClientMessage = gson.fromJson(json, LoginClientMessage.class);
+    LoginClientMessage loginClientMessage = interceptMessage(LoginClientMessage.class);
 
     assertThat(loginClientMessage.getCommand(), is(ClientMessageType.LOGIN));
     assertThat(loginClientMessage.getLogin(), is(username));
@@ -240,6 +234,13 @@ public class FafServerAccessorImplTest extends AbstractPlainJavaFxTest {
     assertThat(result.getLogin(), is(username));
   }
 
+  private <T extends SerializableMessage> T interceptMessage(Class<T> clazz) {
+    ArgumentCaptor<T> captor = ArgumentCaptor.forClass(clazz);
+    verify(serverWriter, timeout(1000)).write(captor.capture());
+    reset(serverWriter);
+    return captor.getValue();
+  }
+
   /**
    * Writes the specified message to the client as if it was sent by the FAF server.
    */
@@ -250,20 +251,18 @@ public class FafServerAccessorImplTest extends AbstractPlainJavaFxTest {
 
   private void connectAndLogIn() throws Exception {
     CompletableFuture<LoginMessage> loginFuture = instance.connectAndLogIn("JUnit", "JUnitPassword").toCompletableFuture();
-
-    assertNotNull(messagesReceivedByFafServer.poll(TIMEOUT, TIMEOUT_UNIT));
+    interceptMessage(InitSessionMessage.class);
 
     SessionMessage sessionMessage = new SessionMessage();
     sessionMessage.setSession(5678);
     sendFromServer(sessionMessage);
-
-    assertNotNull(messagesReceivedByFafServer.poll(TIMEOUT, TIMEOUT_UNIT));
 
     LoginMessage loginServerMessage = new LoginMessage();
     loginServerMessage.setId(123);
     loginServerMessage.setLogin("JUnitUser");
 
     sendFromServer(loginServerMessage);
+    interceptMessage(LoginMessage.class);
 
     assertNotNull(loginFuture.get(TIMEOUT, TIMEOUT_UNIT));
   }
@@ -287,7 +286,6 @@ public class FafServerAccessorImplTest extends AbstractPlainJavaFxTest {
 
     assertThat(matchmakerServerMessage.getQueues(), not(empty()));
   }
-
 
   @Test
   public void testOnNotice() throws Exception {
@@ -314,12 +312,10 @@ public class FafServerAccessorImplTest extends AbstractPlainJavaFxTest {
   @Test
   public void startSearchRanked1v1WithAeon() throws Exception {
     connectAndLogIn();
-    InetSocketAddress relayAddress = InetSocketAddress.createUnresolved("foobar", 1235);
 
     CompletableFuture<GameLaunchMessage> future = instance.startSearchRanked1v1(Faction.AEON).toCompletableFuture();
 
-    String clientMessage = messagesReceivedByFafServer.poll(TIMEOUT, TIMEOUT_UNIT);
-    SearchRanked1V1ClientMessage searchRanked1v1Message = gson.fromJson(clientMessage, SearchRanked1V1ClientMessage.class);
+    SearchRanked1V1ClientMessage searchRanked1v1Message = interceptMessage(SearchRanked1V1ClientMessage.class);
 
     assertThat(searchRanked1v1Message, instanceOf(SearchRanked1V1ClientMessage.class));
     assertThat(searchRanked1v1Message.getFaction(), is(Faction.AEON));
@@ -337,9 +333,25 @@ public class FafServerAccessorImplTest extends AbstractPlainJavaFxTest {
 
     instance.stopSearchingRanked();
 
-    String clientMessage = messagesReceivedByFafServer.poll(TIMEOUT, TIMEOUT_UNIT);
-    StopSearchRanked1V1ClientMessage stopSearchRanked1v1Message = gson.fromJson(clientMessage, StopSearchRanked1V1ClientMessage.class);
+    StopSearchRanked1V1ClientMessage stopSearchRanked1v1Message = interceptMessage(StopSearchRanked1V1ClientMessage.class);
     assertThat(stopSearchRanked1v1Message, instanceOf(StopSearchRanked1V1ClientMessage.class));
     assertThat(stopSearchRanked1v1Message.getCommand(), is(ClientMessageType.GAME_MATCH_MAKING));
+  }
+
+  @Test
+  public void testSendGpgMessage() throws Exception {
+    connectAndLogIn();
+    GameEndedMessage gameEndedMessage = new GameEndedMessage();
+    instance.sendGpgMessage(gameEndedMessage);
+
+    assertThat(interceptMessage(GameEndedMessage.class), is(gameEndedMessage));
+  }
+
+  @Test
+  public void testSendGpgMessageNotSentIfNotAuthenticated() throws Exception {
+    GameEndedMessage message = new GameEndedMessage();
+    instance.sendGpgMessage(message);
+
+    verify(serverWriter, never()).write(any(GameEndedMessage.class));
   }
 }

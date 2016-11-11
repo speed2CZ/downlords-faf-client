@@ -70,6 +70,8 @@ public class ChatController {
           onDisconnected();
           break;
         case CONNECTED:
+          break;
+        case AUTHENTICATED:
           onConnected();
           break;
         case CONNECTING:

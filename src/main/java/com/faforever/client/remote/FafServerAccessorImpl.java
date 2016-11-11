@@ -91,7 +91,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
+import static com.faforever.client.net.ConnectionState.AUTHENTICATED;
 import static com.faforever.client.util.ConcurrentUtil.executeInBackground;
 
 public class FafServerAccessorImpl extends AbstractServerAccessor implements FafServerAccessor {
@@ -131,8 +133,10 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
   private ObjectProperty<ConnectionState> connectionState;
   private Socket fafServerSocket;
   private CompletableFuture<List<Avatar>> avatarsFuture;
+  private Function<OutputStream, ServerWriter> serverWriterFactory;
 
-  public FafServerAccessorImpl() {
+  public FafServerAccessorImpl(Function<OutputStream, ServerWriter> serverWriterFactory) {
+    this.serverWriterFactory = serverWriterFactory;
     messageListeners = new HashMap<>();
     connectionState = new SimpleObjectProperty<>();
     sessionId = new SimpleObjectProperty<>();
@@ -312,6 +316,10 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
 
   @Override
   public void sendGpgMessage(GpgGameMessage message) {
+    if (connectionState.get() != AUTHENTICATED) {
+      logger.debug("Discarding message as we are not authenticated: {}", message);
+      return;
+    }
     writeToServer(message);
   }
 
@@ -344,7 +352,7 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
   }
 
   private ServerWriter createServerWriter(OutputStream outputStream) throws IOException {
-    ServerWriter serverWriter = new ServerWriter(outputStream);
+    ServerWriter serverWriter = serverWriterFactory.apply(outputStream);
     serverWriter.registerMessageSerializer(new ClientMessageSerializer(login, sessionId), ClientMessage.class);
     serverWriter.registerMessageSerializer(new PongMessageSerializer(login, sessionId), PongMessage.class);
     serverWriter.registerMessageSerializer(new StringSerializer(), String.class);
@@ -413,6 +421,7 @@ public class FafServerAccessorImpl extends AbstractServerAccessor implements Faf
   private void onFafLoginSucceeded(LoginMessage loginServerMessage) {
     logger.info("FAF login succeeded");
     eventBus.post(new LoginSuccessEvent(loginServerMessage.getLogin()));
+    connectionState.set(AUTHENTICATED);
 
     if (loginFuture != null) {
       loginFuture.complete(loginServerMessage);

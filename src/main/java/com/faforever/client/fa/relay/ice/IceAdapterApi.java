@@ -22,5 +22,5 @@ interface IceAdapterApi {
 
   void status(String header, List<Object> chunks);
 
-  void gatherSdp();
+  void reconnectToPeer(int peerId);
 }

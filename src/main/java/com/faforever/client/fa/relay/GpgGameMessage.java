@@ -51,4 +51,13 @@ public class GpgGameMessage implements SerializableMessage {
   protected String getString(int index) {
     return ((String) args.get(index));
   }
+
+  @Override
+  public String toString() {
+    return "GpgGameMessage{" +
+        "command='" + command + '\'' +
+        ", args=" + args +
+        ", target=" + target +
+        '}';
+  }
 }

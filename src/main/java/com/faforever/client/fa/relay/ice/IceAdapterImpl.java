@@ -12,6 +12,7 @@ import com.faforever.client.fa.relay.event.GameFullEvent;
 import com.faforever.client.fa.relay.event.RehostRequestEvent;
 import com.faforever.client.fa.relay.ice.event.GpgGameMessageEvent;
 import com.faforever.client.fa.relay.ice.event.IceAdapterStateChanged;
+import com.faforever.client.fa.relay.ice.event.PeerStateChangedEvent;
 import com.faforever.client.game.KnownFeaturedMod;
 import com.faforever.client.player.PlayerService;
 import com.faforever.client.remote.FafService;
@@ -35,6 +36,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -66,9 +68,11 @@ public class IceAdapterImpl implements IceAdapter {
   private IceAdapterApi iceAdapterProxy;
 
   private LobbyMode lobbyMode;
+  private List<Integer> connectedPeers;
 
   public IceAdapterImpl() {
     lobbyMode = LobbyMode.DEFAULT_LOBBY;
+    connectedPeers = new ArrayList<>();
   }
 
   @PostConstruct
@@ -83,6 +87,18 @@ public class IceAdapterImpl implements IceAdapter {
   }
 
   @Subscribe
+  public void onPeerStateChanged(PeerStateChangedEvent event) {
+    switch (event.getState()) {
+      case "Connected":
+        connectedPeers.add(event.getRemotePlayerId());
+        break;
+      case "Disconnected":
+        connectedPeers.remove(event.getRemotePlayerId());
+        break;
+    }
+  }
+
+  @Subscribe
   public void onIceAdapterStateChanged(IceAdapterStateChanged event) {
     switch (event.getNewState()) {
       case "Disconnected":
@@ -93,8 +109,12 @@ public class IceAdapterImpl implements IceAdapter {
 
   @Subscribe
   public void onLoginSuccess(LoginSuccessEvent event) {
+    logger.info("Reconnecting to peers");
     if (iceAdapterProxy != null) {
-      iceAdapterProxy.gatherSdp();
+      connectedPeers.forEach((peerId) -> {
+        logger.debug("Reconnecting to peer {}", peerId);
+        iceAdapterProxy.reconnectToPeer(peerId);
+      });
     }
   }
 

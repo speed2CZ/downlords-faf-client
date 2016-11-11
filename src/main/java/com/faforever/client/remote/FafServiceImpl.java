@@ -142,7 +142,7 @@ public class FafServiceImpl implements FafService {
 
   @Override
   public void notifyGameEnded() {
-    fafServerAccessor.sendGpgMessage(new GameEndedMessage());
+    sendGpgGameMessage(new GameEndedMessage());
   }
 
   @Override
@@ -223,7 +223,7 @@ public class FafServiceImpl implements FafService {
 
   @Override
   public void sendSdp(int remotePlayerId, String sdp) {
-    fafServerAccessor.sendGpgMessage(new SdpRecordClientMessage(remotePlayerId, sdp));
+    sendGpgGameMessage(new SdpRecordClientMessage(remotePlayerId, sdp));
   }
 
   @Override

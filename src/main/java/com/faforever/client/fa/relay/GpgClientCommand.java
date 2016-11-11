@@ -11,6 +11,8 @@ public enum GpgClientCommand {
   DISCONNECTED("Disconnected"),
   CONNECTED("Connected"),
   GAME_STATE("GameState"),
+  BOTTLENECK("Bottleneck"),
+  BOTTLENECK_CLEARED("BottleneckCleared"),
   GAME_OPTION("GameOption"),
   GAME_MODS("GameMods"),
   PLAYER_OPTION("PlayerOption"),

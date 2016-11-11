@@ -3,6 +3,7 @@ package com.faforever.client.fa.relay.ice;
 import com.faforever.client.fa.relay.ice.event.GpgGameMessageEvent;
 import com.faforever.client.fa.relay.ice.event.IceAdapterStateChanged;
 import com.faforever.client.fa.relay.GpgGameMessage;
+import com.faforever.client.fa.relay.ice.event.PeerStateChangedEvent;
 import com.faforever.client.remote.FafService;
 import com.google.common.eventbus.EventBus;
 import org.slf4j.Logger;
@@ -46,5 +47,6 @@ public class IceAdapterCallbacks {
 
   public void onPeerStateChanged(long localPlayerId, long remotePlayerId, String state) {
     logger.debug("Connection state for peer {} changed: {}", remotePlayerId, state);
+    eventBus.post(new PeerStateChangedEvent((int) remotePlayerId, state));
   }
 }

@@ -43,6 +43,7 @@ import com.faforever.client.remote.FafServerAccessorImpl;
 import com.faforever.client.remote.FafService;
 import com.faforever.client.remote.FafServiceImpl;
 import com.faforever.client.remote.MockFafServerAccessor;
+import com.faforever.client.remote.ServerWriter;
 import com.faforever.client.replay.ReplayFileReader;
 import com.faforever.client.replay.ReplayFileReaderImpl;
 import com.faforever.client.replay.ReplayFileWriter;
@@ -99,7 +100,7 @@ public class ServiceConfig {
     if (environment.containsProperty("faf.testing")) {
       return new MockFafServerAccessor();
     }
-    return new FafServerAccessorImpl();
+    return new FafServerAccessorImpl(outputStream -> new ServerWriter(outputStream));
   }
 
   @Bean

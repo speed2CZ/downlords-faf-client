@@ -358,6 +358,7 @@ public class MainController implements OnChooseGameDirectoryListener {
             fafConnectionStatusIcon.pseudoClassStateChanged(CONNECTIVITY_DISCONNECTED_PSEUDO_CLASS, false);
             break;
           case CONNECTED:
+          case AUTHENTICATED:
             fafConnectionButton.setText(i18n.get("statusBar.fafConnected"));
             fafConnectionStatusIcon.pseudoClassStateChanged(CONNECTIVITY_CONNECTED_PSEUDO_CLASS, true);
             fafConnectionStatusIcon.pseudoClassStateChanged(CONNECTIVITY_DISCONNECTED_PSEUDO_CLASS, false);
@@ -379,6 +380,7 @@ public class MainController implements OnChooseGameDirectoryListener {
             chatConnectionButton.setText(i18n.get("statusBar.chatConnecting"));
             break;
           case CONNECTED:
+          case AUTHENTICATED:
             chatConnectionButton.setText(i18n.get("statusBar.chatConnected"));
             chatConnectionStatusIcon.pseudoClassStateChanged(CONNECTIVITY_CONNECTED_PSEUDO_CLASS, true);
             break;
