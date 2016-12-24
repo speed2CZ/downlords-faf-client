@@ -10,12 +10,13 @@ import java.nio.file.Path;
 
 @Lazy
 @Service
-@Profile({"unix", "mac"})
+@Profile({"unix", "mac", "linux"})
 public class UnixUidService implements UidService {
 
   @Override
   public String generate(String sessionId, Path logFile) {
     String uidDir = System.getProperty("uid.dir", "lib");
+    OsUtils.execAndGetOutput(String.format("chmod +x %s/uid",uidDir));
     return OsUtils.execAndGetOutput(String.format("%s/uid %s", uidDir, sessionId));
   }
 }
