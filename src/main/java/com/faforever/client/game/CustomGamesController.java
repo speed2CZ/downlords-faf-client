@@ -6,10 +6,12 @@ import com.faforever.client.map.MapService;
 import com.faforever.client.map.MapServiceImpl.PreviewSize;
 import com.faforever.client.mod.FeaturedModBean;
 import com.faforever.client.mod.ModService;
+import com.faforever.client.player.PlayerService;
 import com.faforever.client.preferences.PreferencesService;
 import com.faforever.client.remote.domain.GameState;
 import com.faforever.client.theme.UiService;
 import com.faforever.client.ui.preferences.event.GameDirectoryChooseEvent;
+import com.faforever.client.util.RatingUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.eventbus.EventBus;
 import javafx.application.Platform;
@@ -39,6 +41,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -57,7 +60,6 @@ public class CustomGamesController implements Controller<Node> {
       KnownFeaturedMod.GALACTIC_WAR.getString(),
       KnownFeaturedMod.MATCHMAKER.getString()
   );
-
   private static final Predicate<Game> OPEN_CUSTOM_GAMES_PREDICATE = gameInfoBean ->
       gameInfoBean.getStatus() == GameState.OPEN
           && !HIDDEN_FEATURED_MODS.contains(gameInfoBean.getFeaturedMod());
@@ -68,6 +70,8 @@ public class CustomGamesController implements Controller<Node> {
   private final PreferencesService preferencesService;
   private final ModService modService;
   private final EventBus eventBus;
+  public Label ratingLabelGlobal;
+  public Label gamesPlayedLabel;
   public ToggleButton tableButton;
   public ToggleButton tilesButton;
   public ToggleGroup viewToggleGroup;
@@ -82,6 +86,10 @@ public class CustomGamesController implements Controller<Node> {
   public Label hostLabel;
   public Label gameTypeLabel;
   public ScrollPane gameDetailPane;
+  @Inject
+  PlayerService playerService;
+  @Inject
+  Locale locale;
   private FilteredList<Game> filteredItems;
 
   private Game currentGame;
@@ -103,6 +111,9 @@ public class CustomGamesController implements Controller<Node> {
 
     filteredItems = new FilteredList<>(games);
     filteredItems.setPredicate(OPEN_CUSTOM_GAMES_PREDICATE);
+
+    ratingLabelGlobal.setText(ratingLabelGlobal.getText() + ": " + String.format(locale, "%d", RatingUtil.getGlobalRating(playerService.getCurrentPlayer())));
+    gamesPlayedLabel.setText(gamesPlayedLabel.getText() + ": " + String.format(locale, "%d", playerService.getCurrentPlayer().getNumberOfGames()));
 
     if (tilesButton.getId().equals(preferencesService.getPreferences().getGamesViewMode())) {
       viewToggleGroup.selectToggle(tilesButton);
@@ -245,3 +256,4 @@ public class CustomGamesController implements Controller<Node> {
     }
   }
 }
+

@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<StackPane xmlns:fx="http://javafx.com/fxml/1" fx:id="gamesRoot" xmlns="http://javafx.com/javafx/8.0.60"
+<StackPane xmlns:fx="http://javafx.com/fxml/1" fx:id="gamesRoot" xmlns="http://javafx.com/javafx/8.0.101"
            fx:controller="com.faforever.client.game.CustomGamesController">
    <children>
       <GridPane>
@@ -36,6 +36,17 @@
                       <Button fx:id="createGameButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreateGameButtonClicked" text="%games.create" />
                       <CheckBox mnemonicParsing="false" onAction="#onShowPrivateGames" selected="true" text="%games.showPasswordProtectedGames" />
                       <Pane HBox.hgrow="ALWAYS" />
+                      <HBox alignment="BASELINE_LEFT" layoutX="593.0" layoutY="10.0">
+                          <children>
+                              <Label fx:id="ratingLabelGlobal" text="%userInfo.ratingGlobal"/>
+                              <Label fx:id="gamesPlayedLabel" layoutX="131.0" layoutY="10.0"
+                                     text="%userInfo.gamesPlayed">
+                                  <padding>
+                                      <Insets left="10.0"/>
+                                  </padding>
+                              </Label>
+                          </children>
+                      </HBox>
                     <HBox alignment="BASELINE_LEFT">
                       <children>
                           <ToggleButton fx:id="tableButton" mnemonicParsing="false" onAction="#onTableButtonClicked" text="%view.table">
@@ -52,6 +63,9 @@
                                  </graphic>
                               </ToggleButton>
                       </children>
+                        <HBox.margin>
+                            <Insets left="10.0"/>
+                        </HBox.margin>
                     </HBox>
                   </children>
                 </HBox>
