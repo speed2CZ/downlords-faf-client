@@ -83,6 +83,7 @@ public class MainController implements Controller<Node> {
   public Labeled notificationsBadge;
   public Pane contentPane;
   public ToggleButton newsButton;
+  public ToggleButton clanButton;
   public ToggleButton chatButton;
   public ToggleButton playButton;
   public ToggleButton vaultButton;
@@ -132,6 +133,7 @@ public class MainController implements Controller<Node> {
     vaultButton.setUserData(NavigationItem.VAULT);
     leaderboardsButton.setUserData(NavigationItem.LEADERBOARD);
     unitsButton.setUserData(NavigationItem.UNITS);
+    clanButton.setUserData(NavigationItem.CLAN);
 
     eventBus.register(this);
     windowController = uiService.loadFxml("theme/window.fxml");
