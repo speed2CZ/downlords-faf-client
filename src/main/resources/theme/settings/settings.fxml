@@ -35,6 +35,8 @@
                                         <Label styleClass="h3" text="%settings.general.theme" />
                                         <ComboBox fx:id="themeComboBox" disable="true" />
                                         <CheckBox fx:id="rememberLastTabCheckBox" mnemonicParsing="false" text="%settings.general.rememberLastTab" />
+                                        <CheckBox fx:id="enableTipsCheckBox" mnemonicParsing="false"
+                                                  text="%settings.enableTips"/>
                                     </children>
                                 </VBox>
                             </children>
@@ -126,7 +128,8 @@
                                 </VBox>
                                 <VBox GridPane.rowIndex="2">
                                     <children>
-                                        <CheckBox fx:id="enableSoundsCheckBox" mnemonicParsing="false" text="%settings.sounds.enable" />
+                                        <CheckBox fx:id="enableSoundsCheckBox" mnemonicParsing="false"
+                                                  text="%settings.sounds.enable"/>
                                     </children>
                                 </VBox>
                                 <GridPane hgap="10.0" vgap="10.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="1">

@@ -25,6 +25,7 @@ import com.faforever.client.preferences.ui.SettingsController;
 import com.faforever.client.rankedmatch.MatchmakerMessage;
 import com.faforever.client.remote.domain.RatingRange;
 import com.faforever.client.theme.UiService;
+import com.faforever.client.tip.TipController;
 import com.faforever.client.ui.StageHolder;
 import com.faforever.client.ui.tray.event.IncrementApplicationBadgeEvent;
 import com.faforever.client.update.ClientUpdateService;
@@ -395,6 +396,23 @@ public class MainController implements Controller<Node> {
     clientUpdateService.checkForUpdateInBackground();
 
     restoreLastView();
+    showTip();
+  }
+
+  private void showTip() {
+    if (!preferencesService.getPreferences().getNews().isShowTips()) {
+      return;
+    }
+    Stage stage = new Stage(StageStyle.UNDECORATED);
+    stage.initOwner(mainRoot.getScene().getWindow());
+
+    TipController tipController = uiService.loadFxml("theme/tip.fxml");
+    WindowController windowController = uiService.loadFxml("theme/window.fxml");
+    windowController.configure(stage, tipController.getRoot(), true, CLOSE);
+
+    stage.setTitle(i18n.get("tip.windowTitle"));
+    stage.show();
+
   }
 
   private void restoreLastView() {
