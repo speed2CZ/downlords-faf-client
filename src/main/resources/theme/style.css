@@ -1222,7 +1222,7 @@
   -fx-border-width: 0 0 2 0;
 }
 
-.main-navigation-button {;
+.main-navigation-button {
   -fx-color: transparent;
   -fx-font-size: 1.2em;
   -fx-text-fill: -secondary-text-color;
@@ -1457,4 +1457,8 @@
 .game-card-title {
   -fx-font-weight: bold;
   -fx-font-size: 1.2em;
+}
+/***************** Tip*****************/
+.tip-text{
+    -fx-font-size:12
 }

@@ -411,7 +411,7 @@ public class MainController implements Controller<Node> {
     windowController.configure(stage, tipController.getRoot(), true, CLOSE);
 
     stage.setTitle(i18n.get("tip.windowTitle"));
-    stage.show();
+    tipController.loadedPropertyProperty().addListener(observable -> Platform.runLater(() -> stage.show()));
 
   }
 
