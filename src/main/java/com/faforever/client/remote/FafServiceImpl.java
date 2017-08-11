@@ -183,9 +183,17 @@ public class FafServiceImpl implements FafService {
 
   @Override
   @Async
-  public CompletableFuture<List<MapBean>> getMostLikedMaps(int count, int page) {
+  public CompletableFuture<List<MapBean>> getHighestRatedMaps(int count, int page) {
     return CompletableFuture.completedFuture(fafApiAccessor.getHighestRatedMaps(count, page).stream()
         .map(MapBean::fromMapDto)
+        .collect(toList()));
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<List<Mod>> getHighestRatedMods(int count, int page) {
+    return CompletableFuture.completedFuture(fafApiAccessor.getHighestRatedMods(count, page).stream()
+        .map(Mod::fromModDto)
         .collect(toList()));
   }
 
@@ -443,6 +451,14 @@ public class FafServiceImpl implements FafService {
   public CompletableFuture<Void> deleteMapVersionReview(Review review) {
     fafApiAccessor.deleteMapVersionReview(review.getId());
     return CompletableFuture.completedFuture(null);
+  }
+
+  @Override
+  public CompletableFuture<List<Mod>> findModsByQuery(String query, int page, int maxSearchResults) {
+    return CompletableFuture.completedFuture(fafApiAccessor.findModsByQuery(query, page, maxSearchResults)
+        .parallelStream()
+        .map(Mod::fromModDto)
+        .collect(toList()));
   }
 
   @Override

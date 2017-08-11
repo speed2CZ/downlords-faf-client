@@ -25,6 +25,7 @@ import com.faforever.client.replay.Replay;
 import com.faforever.client.vault.review.Review;
 import com.faforever.commons.io.ByteCountListener;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import org.springframework.scheduling.annotation.Async;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -78,7 +79,10 @@ public interface FafService {
 
   CompletableFuture<List<MapBean>> getMostPlayedMaps(int count, int page);
 
-  CompletableFuture<List<MapBean>> getMostLikedMaps(int count, int page);
+  CompletableFuture<List<MapBean>> getHighestRatedMaps(int count, int page);
+
+  @Async
+  CompletableFuture<List<Mod>> getHighestRatedMods(int count, int page);
 
   CompletableFuture<List<MapBean>> getNewestMaps(int count, int page);
 
@@ -141,4 +145,6 @@ public interface FafService {
   Optional<MapBean> findMapById(String id);
 
   CompletableFuture<Void> deleteMapVersionReview(Review review);
+
+  CompletableFuture<List<Mod>> findModsByQuery(String query, int page, int maxSearchResults);
 }

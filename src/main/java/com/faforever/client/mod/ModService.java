@@ -47,17 +47,13 @@ public interface ModService {
    */
   CompletableFuture<List<Mod>> getAvailableMods();
 
-  CompletableFuture<List<Mod>> getMostDownloadedMods(int count);
+  CompletableFuture<List<Mod>> getMostDownloadedMods(int count, int page);
 
-  CompletableFuture<List<Mod>> getMostLikedMods(int count);
+  CompletableFuture<List<Mod>> getHighestRatedMods(int count, int page);
 
-  CompletableFuture<List<Mod>> getMostPlayedMods(int count);
+  CompletableFuture<List<Mod>> getMostPlayedMods(int count, int page);
 
-  CompletableFuture<List<Mod>> getNewestMods(int count);
-
-  CompletableFuture<List<Mod>> getMostLikedUiMods(int count);
-
-  CompletableFuture<List<Mod>> lookupMod(String string, int maxSuggestions);
+  CompletableFuture<List<Mod>> getNewestMods(int count, int page);
 
   @NotNull
   Mod extractModInfo(Path path);
@@ -76,4 +72,8 @@ public interface ModService {
   CompletableFuture<List<FeaturedMod>> getFeaturedMods();
 
   CompletableFuture<FeaturedMod> getFeaturedMod(String gameTypeBeanName);
+
+  CompletableFuture<List<Mod>> findByQuery(String query, int page, int maxSearchResults);
+
+  void evictCache();
 }

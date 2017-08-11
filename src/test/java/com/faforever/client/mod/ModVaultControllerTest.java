@@ -77,10 +77,10 @@ public class ModVaultControllerTest extends AbstractPlainJavaFxTest {
       );
     }
 
-    when(modService.getMostDownloadedMods(anyInt())).thenReturn(CompletableFuture.completedFuture(mods));
+    when(modService.getMostDownloadedMods(anyInt(), )).thenReturn(CompletableFuture.completedFuture(mods));
     when(modService.getMostLikedUiMods(anyInt())).thenReturn(CompletableFuture.completedFuture(mods));
-    when(modService.getNewestMods(anyInt())).thenReturn(CompletableFuture.completedFuture(mods));
-    when(modService.getMostLikedMods(anyInt())).thenReturn(CompletableFuture.completedFuture(mods));
+    when(modService.getNewestMods(anyInt(), )).thenReturn(CompletableFuture.completedFuture(mods));
+    when(modService.getMostLikedMods(anyInt(), )).thenReturn(CompletableFuture.completedFuture(mods));
 
     CountDownLatch latch = new CountDownLatch(3);
     waitUntilInitialized(instance.recommendedUiModsPane, latch);
@@ -125,30 +125,30 @@ public class ModVaultControllerTest extends AbstractPlainJavaFxTest {
 
   @Test
   public void showMoreNewestMods() throws Exception {
-    when(modService.getNewestMods(200)).thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
+    when(modService.getNewestMods(200, )).thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
     instance.showMoreNewestMods();
 
-    verify(modService).getNewestMods(200);
+    verify(modService).getNewestMods(200, );
     assertThat(instance.showroomGroup.isVisible(), is(false));
     assertThat(instance.searchResultGroup.isVisible(), is(true));
   }
 
   @Test
   public void showMorePopularMods() throws Exception {
-    when(modService.getMostPlayedMods(200)).thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
+    when(modService.getMostPlayedMods(200, )).thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
     instance.showMorePopularMods();
 
-    verify(modService).getMostPlayedMods(200);
+    verify(modService).getMostPlayedMods(200, );
     assertThat(instance.showroomGroup.isVisible(), is(false));
     assertThat(instance.searchResultGroup.isVisible(), is(true));
   }
 
   @Test
   public void showMoreMostLikedMods() throws Exception {
-    when(modService.getMostLikedMods(200)).thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
+    when(modService.getMostLikedMods(200, )).thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
     instance.showMoreMostLikedMods();
 
-    verify(modService).getMostLikedMods(200);
+    verify(modService).getMostLikedMods(200, );
     assertThat(instance.showroomGroup.isVisible(), is(false));
     assertThat(instance.searchResultGroup.isVisible(), is(true));
   }

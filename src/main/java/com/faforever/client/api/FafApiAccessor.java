@@ -60,6 +60,8 @@ public interface FafApiAccessor {
 
   List<Map> getHighestRatedMaps(int count, int page);
 
+  List<Mod> getHighestRatedMods(int count, int page);
+
   List<Map> getNewestMaps(int count, int page);
 
   List<Game> getLastGamesOnMap(int playerId, String mapVersionId, int count);
@@ -111,4 +113,6 @@ public interface FafApiAccessor {
   Optional<MapVersion> findMapVersionById(String id);
 
   void deleteMapVersionReview(Integer id);
+
+  List<Mod> findModsByQuery(String query, int page, int maxResults);
 }

@@ -58,4 +58,20 @@ public class SearchableProperties {
       .put("latestVersion.ranked", "map.ranked")
 
       .build();
+
+  public static final Map<String, String> MOD_PROPERTIES = ImmutableMap.<String, String>builder()
+      .put("displayName", "mod.displayName")
+      .put("author.login", "mod.author")
+
+      .put("latestVersion.createTime", "mod.uploadedDateTime")
+      .put("latestVersion.updateTime", "mod.updatedDateTime")
+      .put("latestVersion.description", "mod.description")
+      .put("latestVersion.id", "mod.id")
+      .put("latestVersion.uid", "mod.uid")
+      .put("latestVersion.type", "mod.type")
+      .put("latestVersion.ranked", "mod.ranked")
+      .put("latestVersion.version", "mod.version")
+      .put("latestVersion.filename", "mod.filename")
+
+      .build();
 }

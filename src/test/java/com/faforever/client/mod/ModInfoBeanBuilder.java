@@ -25,7 +25,7 @@ public class ModInfoBeanBuilder {
   }
 
   public ModInfoBeanBuilder defaultValues() {
-    modInfo.setPublishDate(LocalDateTime.now());
+    modInfo.setCreateTime(LocalDateTime.now());
     name("Mod");
     uid(UUID.randomUUID().toString());
     version(new ComparableVersion("1"));
@@ -57,12 +57,12 @@ public class ModInfoBeanBuilder {
   }
 
   public ModInfoBeanBuilder name(String name) {
-    modInfo.setName(name);
+    modInfo.setDisplayName(name);
     return this;
   }
 
   public ModInfoBeanBuilder author(String author) {
-    modInfo.setAuthor(author);
+    modInfo.setUploader(author);
     return this;
   }
 

@@ -72,6 +72,7 @@ public class FafApiAccessorImpl implements FafApiAccessor {
 
   private static final String MAP_ENDPOINT = "/data/map";
   private static final String REPLAY_INCLUDES = "featuredMod,playerStats,playerStats.player,reviews,reviews.player,mapVersion,mapVersion.map";
+  private static final String MOD_ENDPOINT = "/data/mod";
   private final EventBus eventBus;
   private final RestTemplateBuilder restTemplateBuilder;
   private final ClientProperties clientProperties;
@@ -231,6 +232,19 @@ public class FafApiAccessorImpl implements FafApiAccessor {
   }
 
   @Override
+  @Cacheable(CacheNames.MODS)
+  public List<Mod> getHighestRatedMods(int count, int page) {
+    // FIXME https://github.com/FAForever/downlords-faf-client/issues/547
+    // In order to be able to sort by rating, the database and API need to be extended
+    // I (Downlord) already started the DB part locally
+    return this.<MapStatistics>getPage("/data/modStatistics", count, page, ImmutableMap.of(
+        "include", "mod,mod.latestVersion,mod.author,mod.versions.reviews",
+        "sort", "-plays")).stream()
+        .map(ModStatistics::getMod)
+        .collect(Collectors.toList());
+  }
+
+  @Override
   public List<Map> getNewestMaps(int count, int page) {
     return getPage(MAP_ENDPOINT, count, page, ImmutableMap.of(
         "include", "latestVersion,author,versions.reviews",
@@ -374,6 +388,14 @@ public class FafApiAccessorImpl implements FafApiAccessor {
   @Override
   public void deleteMapVersionReview(Integer id) {
     delete("/data/mapVersionReview/" + id);
+  }
+
+  @Override
+  public List<Mod> findModsByQuery(String query, int page, int maxResults) {
+    return getPage(MOD_ENDPOINT, maxResults, page, ImmutableMap.of(
+        "filter", query,
+        "include", "latestVersion,latestVersion.reviews,author"
+    ));
   }
 
   @Override

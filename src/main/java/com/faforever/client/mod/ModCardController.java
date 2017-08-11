@@ -64,11 +64,11 @@ public class ModCardController implements Controller<Node> {
   public void setMod(Mod mod) {
     this.mod = mod;
     thumbnailImageView.setImage(modService.loadThumbnail(mod));
-    nameLabel.setText(mod.getName());
-    authorLabel.setText(mod.getAuthor());
+    nameLabel.setText(mod.getDisplayName());
+    authorLabel.setText(mod.getUploader());
     likesLabel.setText(String.format("%d", mod.getLikes()));
     commentsLabel.setText(String.format("%d", mod.getComments().size()));
-    updatedDateLabel.setText(timeService.asDate(mod.getPublishDate()));
+    updatedDateLabel.setText(timeService.asDate(mod.getCreateTime()));
 
     ObservableList<Mod> installedMods = modService.getInstalledMods();
     synchronized (installedMods) {

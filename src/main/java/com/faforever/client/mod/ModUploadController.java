@@ -107,7 +107,7 @@ public class ModUploadController  implements Controller<Node> {
     this.modInfo = mod;
 
     enterModInfoState();
-    modNameLabel.textProperty().bind(mod.nameProperty());
+    modNameLabel.textProperty().bind(mod.displayNameProperty());
     descriptionLabel.textProperty().bind(mod.descriptionProperty());
     versionLabel.textProperty().bind(mod.versionProperty().asString());
     uidLabel.textProperty().bind(mod.idProperty());

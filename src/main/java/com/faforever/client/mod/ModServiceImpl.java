@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
@@ -60,7 +61,6 @@ import static com.github.nocatch.NoCatch.noCatch;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
@@ -267,38 +267,18 @@ public class ModServiceImpl implements ModService {
   }
 
   @Override
-  public CompletableFuture<List<Mod>> getMostDownloadedMods(int count) {
+  public CompletableFuture<List<Mod>> getMostDownloadedMods(int count, int page) {
     return getTopElements(Mod.DOWNLOADS_COMPARATOR.reversed(), count);
   }
 
   @Override
-  public CompletableFuture<List<Mod>> getMostLikedMods(int count) {
-    return getTopElements(Mod.LIKES_COMPARATOR.reversed(), count);
-  }
-
-  @Override
-  public CompletableFuture<List<Mod>> getMostPlayedMods(int count) {
+  public CompletableFuture<List<Mod>> getMostPlayedMods(int count, int page) {
     return getTopElements(Mod.TIMES_PLAYED_COMPARATOR.reversed(), count);
   }
 
   @Override
-  public CompletableFuture<List<Mod>> getNewestMods(int count) {
+  public CompletableFuture<List<Mod>> getNewestMods(int count, int page) {
     return getTopElements(Mod.PUBLISH_DATE_COMPARATOR.reversed(), count);
-  }
-
-  @Override
-  public CompletableFuture<List<Mod>> getMostLikedUiMods(int count) {
-    return getAvailableMods().thenApply(modInfoBeans -> modInfoBeans.stream()
-        .filter(Mod::getUiOnly)
-        .sorted(Mod.LIKES_COMPARATOR.reversed())
-        .limit(count)
-        .collect(Collectors.toList()));
-  }
-
-  @Override
-  public CompletableFuture<List<Mod>> lookupMod(String string, int maxResults) {
-    // FIXME remove
-    return CompletableFuture.completedFuture(emptyList());
   }
 
   @NotNull
@@ -334,7 +314,7 @@ public class ModServiceImpl implements ModService {
   @Cacheable(value = CacheNames.MOD_THUMBNAIL, unless = "#result == null")
   public Image loadThumbnail(Mod mod) {
     URL url = mod.getThumbnailUrl();
-    return assetService.loadAndCacheImage(url, Paths.get("mods"), () -> IdenticonUtil.createIdenticon(mod.getName()));
+    return assetService.loadAndCacheImage(url, Paths.get("mods"), () -> IdenticonUtil.createIdenticon(mod.getDisplayName()));
   }
 
   @Override
@@ -359,6 +339,22 @@ public class ModServiceImpl implements ModService {
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("Not a valid featured mod: " + featuredMod))
     ));
+  }
+
+  @Override
+  public CompletableFuture<List<Mod>> findByQuery(String query, int page, int maxSearchResults) {
+    return fafService.findModsByQuery(query, page, maxSearchResults);
+  }
+
+  @Override
+  @CacheEvict(CacheNames.MODS)
+  public void evictCache() {
+    // Nothing to see here
+  }
+
+  @Override
+  public CompletableFuture<List<Mod>> getHighestRatedMods(int count, int page) {
+    return null;
   }
 
   private CompletableFuture<List<Mod>> getTopElements(Comparator<? super Mod> comparator, int count) {

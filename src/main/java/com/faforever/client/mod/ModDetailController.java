@@ -102,8 +102,8 @@ public class ModDetailController implements Controller<Node> {
   public void setMod(Mod mod) {
     this.mod = mod;
     thumbnailImageView.setImage(modService.loadThumbnail(mod));
-    nameLabel.setText(mod.getName());
-    authorLabel.setText(mod.getAuthor());
+    nameLabel.setText(mod.getDisplayName());
+    authorLabel.setText(mod.getUploader());
 
     boolean modInstalled = modService.isModInstalled(mod.getId());
     installButton.setVisible(!modInstalled);
@@ -121,7 +121,7 @@ public class ModDetailController implements Controller<Node> {
         .exceptionally(throwable -> {
           notificationService.addNotification(new ImmediateNotification(
               i18n.get("errorTitle"),
-              i18n.get("modVault.installationFailed", mod.getName(), throwable.getLocalizedMessage()),
+              i18n.get("modVault.installationFailed", mod.getDisplayName(), throwable.getLocalizedMessage()),
               Severity.ERROR, throwable, singletonList(new ReportAction(i18n, reportingService, throwable))));
           return null;
         });
@@ -135,7 +135,7 @@ public class ModDetailController implements Controller<Node> {
     modService.uninstallMod(mod).exceptionally(throwable -> {
       notificationService.addNotification(new ImmediateNotification(
           i18n.get("errorTitle"),
-          i18n.get("modVault.couldNotDeleteMod", mod.getName(), throwable.getLocalizedMessage()),
+          i18n.get("modVault.couldNotDeleteMod", mod.getDisplayName(), throwable.getLocalizedMessage()),
           Severity.ERROR, throwable, singletonList(new ReportAction(i18n, reportingService, throwable))));
       return null;
     });

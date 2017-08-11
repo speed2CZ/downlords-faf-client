@@ -306,13 +306,13 @@ public class ModServiceImplTest {
     instance.loadInstalledMods();
 
     ArrayList<Mod> installedMods = new ArrayList<>(instance.getInstalledMods());
-    installedMods.sort(Comparator.comparing(Mod::getName));
+    installedMods.sort(Comparator.comparing(Mod::getDisplayName));
 
     Mod mod = installedMods.get(0);
 
-    assertThat(mod.getName(), is("BlackOps Global Icon Support Mod"));
+    assertThat(mod.getDisplayName(), is("BlackOps Global Icon Support Mod"));
     assertThat(mod.getVersion(), is(new ComparableVersion("5")));
-    assertThat(mod.getAuthor(), is("Exavier Macbeth, DeadMG"));
+    assertThat(mod.getUploader(), is("Exavier Macbeth, DeadMG"));
     assertThat(mod.getDescription(), is("Version 5.0. This mod provides global icon support for any mod that places their icons in the proper folder structure. See Readme"));
     assertThat(mod.getImagePath(), nullValue());
     assertThat(mod.getSelectable(), is(true));
@@ -321,9 +321,9 @@ public class ModServiceImplTest {
 
     mod = installedMods.get(1);
 
-    assertThat(mod.getName(), is("BlackOps Unleashed"));
+    assertThat(mod.getDisplayName(), is("BlackOps Unleashed"));
     assertThat(mod.getVersion(), is(new ComparableVersion("8")));
-    assertThat(mod.getAuthor(), is("Lt_hawkeye"));
+    assertThat(mod.getUploader(), is("Lt_hawkeye"));
     assertThat(mod.getDescription(), is("Version 5.2. BlackOps Unleased Unitpack contains several new units and game changes. Have fun"));
     assertThat(mod.getImagePath(), is(modsDirectory.getRoot().toPath().resolve("BlackOpsUnleashed/icons/yoda_icon.bmp")));
     assertThat(mod.getSelectable(), is(true));
@@ -336,9 +336,9 @@ public class ModServiceImplTest {
 
     mod = installedMods.get(2);
 
-    assertThat(mod.getName(), is("EcoManager"));
+    assertThat(mod.getDisplayName(), is("EcoManager"));
     assertThat(mod.getVersion(), is(new ComparableVersion("3")));
-    assertThat(mod.getAuthor(), is("Crotalus"));
+    assertThat(mod.getUploader(), is("Crotalus"));
     assertThat(mod.getDescription(), is("EcoManager v3, more efficient energy throttling"));
     assertThat(mod.getImagePath(), nullValue());
     assertThat(mod.getSelectable(), is(true));
