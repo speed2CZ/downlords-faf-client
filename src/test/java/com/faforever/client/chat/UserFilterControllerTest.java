@@ -103,7 +103,7 @@ public class UserFilterControllerTest extends AbstractPlainJavaFxTest {
     when(channelTabController.getUserToChatUserControls()).thenReturn(new HashMap<>());
     when(i18n.get("game.gameStatus.playing")).thenReturn("playing");
 
-    instance.onGameStatusPlaying(null);
+    instance.onGameStatusPlaying();
     assertEquals(PLAYING, instance.playerStatusFilter);
     assertEquals(i18n.get("game.gameStatus.playing"), instance.gameStatusMenu.getText());
   }
@@ -113,7 +113,7 @@ public class UserFilterControllerTest extends AbstractPlainJavaFxTest {
     when(channelTabController.getUserToChatUserControls()).thenReturn(new HashMap<>());
     when(i18n.get("game.gameStatus.lobby")).thenReturn("lobby");
 
-    instance.onGameStatusLobby(null);
+    instance.onGameStatusLobby();
     assertEquals(LOBBYING, instance.playerStatusFilter);
     assertEquals(i18n.get("game.gameStatus.lobby"), instance.gameStatusMenu.getText());
   }
@@ -123,7 +123,7 @@ public class UserFilterControllerTest extends AbstractPlainJavaFxTest {
     when(channelTabController.getUserToChatUserControls()).thenReturn(new HashMap<>());
     when(i18n.get("game.gameStatus.none")).thenReturn("none");
 
-    instance.onGameStatusNone(null);
+    instance.onGameStatusNone();
     assertEquals(IDLE, instance.playerStatusFilter);
     assertEquals(i18n.get("game.gameStatus.none"), instance.gameStatusMenu.getText());
   }

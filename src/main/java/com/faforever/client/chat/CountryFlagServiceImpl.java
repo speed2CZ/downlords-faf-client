@@ -13,6 +13,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Optional;
 
 import static com.faforever.client.config.CacheNames.COUNTRY_FLAGS;
@@ -46,7 +47,7 @@ public class CountryFlagServiceImpl implements CountryFlagService {
     if (NON_COUNTRY_CODES.contains(country)) {
       imageName = "earth";
     } else {
-      imageName = country.toLowerCase();
+      imageName = country.toLowerCase(Locale.US);
     }
 
     String path = "/images/flags/" + imageName + ".png";

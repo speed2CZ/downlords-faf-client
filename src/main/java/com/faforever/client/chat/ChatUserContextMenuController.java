@@ -5,7 +5,6 @@ import com.faforever.client.chat.avatar.AvatarService;
 import com.faforever.client.fx.Controller;
 import com.faforever.client.fx.StringListCell;
 import com.faforever.client.fx.WindowController;
-import com.faforever.client.game.GameService;
 import com.faforever.client.game.JoinGameHelper;
 import com.faforever.client.game.PlayerStatus;
 import com.faforever.client.i18n.I18n;
@@ -18,7 +17,6 @@ import com.faforever.client.preferences.ChatPrefs;
 import com.faforever.client.preferences.PreferencesService;
 import com.faforever.client.replay.ReplayService;
 import com.faforever.client.theme.UiService;
-import com.faforever.client.user.UserService;
 import com.google.common.eventbus.EventBus;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -33,15 +31,12 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.Objects;
 
@@ -54,9 +49,9 @@ import static java.util.Locale.US;
 
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Component
+@Slf4j
 public class ChatUserContextMenuController implements Controller<ContextMenu> {
 
-  private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final ChatService chatService;
   private final PreferencesService preferencesService;
   private final PlayerService playerService;
@@ -67,6 +62,7 @@ public class ChatUserContextMenuController implements Controller<ContextMenu> {
   private final JoinGameHelper joinGameHelper;
   private final AvatarService avatarService;
   private final UiService uiService;
+
   public ComboBox<AvatarBean> avatarComboBox;
   public CustomMenuItem avatarPickerMenuItem;
   public MenuItem sendPrivateMessageItem;
@@ -88,8 +84,7 @@ public class ChatUserContextMenuController implements Controller<ContextMenu> {
   public ContextMenu chatUserContextMenuRoot;
   private Player player;
 
-  @Inject
-  public ChatUserContextMenuController(UserService userService, ChatService chatService, PreferencesService preferencesService, PlayerService playerService, GameService gameService, ReplayService replayService, NotificationService notificationService, I18n i18n, EventBus eventBus, JoinGameHelper joinGameHelper, AvatarService avatarService, UiService uiService) {
+  public ChatUserContextMenuController(ChatService chatService, PreferencesService preferencesService, PlayerService playerService, ReplayService replayService, NotificationService notificationService, I18n i18n, EventBus eventBus, JoinGameHelper joinGameHelper, AvatarService avatarService, UiService uiService) {
     this.chatService = chatService;
     this.preferencesService = preferencesService;
     this.playerService = playerService;
@@ -101,7 +96,7 @@ public class ChatUserContextMenuController implements Controller<ContextMenu> {
     this.avatarService = avatarService;
     this.uiService = uiService;
   }
-  
+
   public void initialize() {
     avatarComboBox.setCellFactory(param -> avatarCell());
     avatarComboBox.setButtonCell(avatarCell());
@@ -129,11 +124,7 @@ public class ChatUserContextMenuController implements Controller<ContextMenu> {
     ChatPrefs chatPrefs = preferencesService.getPreferences().getChat();
 
     String lowerCaseUsername = player.getUsername().toLowerCase(US);
-    if (chatPrefs.getUserToColor().containsKey(lowerCaseUsername)) {
-      colorPicker.setValue(chatPrefs.getUserToColor().get(lowerCaseUsername));
-    } else {
-      colorPicker.setValue(null);
-    }
+    colorPicker.setValue(chatPrefs.getUserToColor().getOrDefault(lowerCaseUsername, null));
 
     colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
       String lowerUsername = player.getUsername().toLowerCase(US);
@@ -154,7 +145,7 @@ public class ChatUserContextMenuController implements Controller<ContextMenu> {
         .isEqualTo(CUSTOM)
         .and(player.socialStatusProperty().isNotEqualTo(SELF)));
 
-    if (player.getSocialStatus() != SocialStatus.SELF) {
+    if (player.getSocialStatus() != SELF) {
       avatarPickerMenuItem.setVisible(false);
     } else {
       loadAvailableAvatars();
@@ -256,7 +247,7 @@ public class ChatUserContextMenuController implements Controller<ContextMenu> {
     try {
       replayService.runLiveReplay(player.getGame().getId(), player.getId());
     } catch (Exception e) {
-      logger.error("Cannot display live replay {}", e.getCause());
+      log.error("Cannot display live replay {}", e.getCause());
       String title = i18n.get("replays.live.loadFailure.title");
       String message = i18n.get("replays.live.loadFailure.message");
       notificationService.addNotification(new ImmediateNotification(title, message, Severity.ERROR));

@@ -48,7 +48,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -57,8 +56,8 @@ import static com.faforever.client.util.LuaUtil.loadFile;
 import static com.github.nocatch.NoCatch.noCatch;
 import static com.google.common.net.UrlEscapers.urlFragmentEscaper;
 import static java.lang.String.format;
-import static java.nio.file.Files.list;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.util.Locale.US;
 import static java.util.stream.Collectors.toCollection;
 
 
@@ -109,21 +108,21 @@ public class MapServiceImpl implements MapService {
     installedSkirmishMaps.addListener((ListChangeListener<MapBean>) change -> {
       while (change.next()) {
         for (MapBean mapBean : change.getRemoved()) {
-          mapsByFolderName.remove(mapBean.getFolderName().toLowerCase());
+          mapsByFolderName.remove(mapBean.getFolderName().toLowerCase(US));
         }
         for (MapBean mapBean : change.getAddedSubList()) {
-          mapsByFolderName.put(mapBean.getFolderName().toLowerCase(), mapBean);
+          mapsByFolderName.put(mapBean.getFolderName().toLowerCase(US), mapBean);
         }
       }
     });
   }
 
   private static URL getDownloadUrl(String mapName, String baseUrl) {
-    return noCatch(() -> new URL(format(baseUrl, urlFragmentEscaper().escape(mapName).toLowerCase(Locale.US))));
+    return noCatch(() -> new URL(format(baseUrl, urlFragmentEscaper().escape(mapName).toLowerCase(US))));
   }
 
   private static URL getPreviewUrl(String mapName, String baseUrl, PreviewSize previewSize) {
-    return noCatch(() -> new URL(format(baseUrl, previewSize.folderName, urlFragmentEscaper().escape(mapName).toLowerCase(Locale.US))));
+    return noCatch(() -> new URL(format(baseUrl, previewSize.folderName, urlFragmentEscaper().escape(mapName).toLowerCase(US))));
   }
 
   @PostConstruct
@@ -221,7 +220,7 @@ public class MapServiceImpl implements MapService {
       throw new MapLoadException("Not a folder: " + mapFolder.toAbsolutePath());
     }
 
-    Path scenarioLuaPath = noCatch(() -> list(mapFolder))
+    Path scenarioLuaPath = noCatch(() -> Files.list(mapFolder))
         .filter(file -> file.getFileName().toString().endsWith("_scenario.lua"))
         .findFirst()
         .orElseThrow(() -> new MapLoadException("Map folder does not contain a *_scenario.lua: " + mapFolder.toAbsolutePath()));
@@ -276,7 +275,7 @@ public class MapServiceImpl implements MapService {
 
   @Override
   public boolean isInstalled(String mapFolderName) {
-    return mapsByFolderName.containsKey(mapFolderName.toLowerCase());
+    return mapsByFolderName.containsKey(mapFolderName.toLowerCase(US));
   }
 
   @Override
@@ -434,7 +433,7 @@ public class MapServiceImpl implements MapService {
     }
 
     public static OfficialMap fromMapName(String mapName) {
-      return fromString.get(mapName.toUpperCase());
+      return fromString.get(mapName.toUpperCase(US));
     }
   }
 

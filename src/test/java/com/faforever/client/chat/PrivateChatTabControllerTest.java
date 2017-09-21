@@ -12,8 +12,6 @@ import com.faforever.client.notification.NotificationService;
 import com.faforever.client.notification.TransientNotification;
 import com.faforever.client.player.Player;
 import com.faforever.client.player.PlayerService;
-import com.faforever.client.preferences.ChatPrefs;
-import com.faforever.client.preferences.Preferences;
 import com.faforever.client.preferences.PreferencesService;
 import com.faforever.client.reporting.ReportingService;
 import com.faforever.client.test.AbstractPlainJavaFxTest;
@@ -30,7 +28,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.io.IOException;
@@ -51,8 +49,6 @@ public class PrivateChatTabControllerTest extends AbstractPlainJavaFxTest {
   private ChatService chatService;
   @Mock
   private UserService userService;
-  @Mock
-  private PreferencesService preferencesService;
   @Mock
   private PlayerService playerService;
   @Mock
@@ -82,8 +78,6 @@ public class PrivateChatTabControllerTest extends AbstractPlainJavaFxTest {
   @Mock
   private EventBus eventBus;
   @Mock
-  private Preferences preferences;
-  @Mock
   private CountryFlagService countryFlagService;
   @Mock
   private MapService mapService;
@@ -93,8 +87,6 @@ public class PrivateChatTabControllerTest extends AbstractPlainJavaFxTest {
   private GameDetailController gameDetailController;
   @Mock
   private WatchButtonController watchButtonController;
-  @Mock
-  private ChatPrefs chatPrefs;
 
   private PrivateChatTabController instance;
   private String playerName;
@@ -166,19 +158,19 @@ public class PrivateChatTabControllerTest extends AbstractPlainJavaFxTest {
   @Ignore("Not yet implemented")
   @Test
   public void onChatMessageTestNotFoeHideFoe() {
-
+    // TODO implement
   }
 
   @Ignore("Not yet implemented")
   @Test
   public void onChatMessageTestIsFoeShowFoe() {
-
+    // TODO implement
   }
 
   @Ignore("Not yet implemented")
   @Test
   public void onChatMessageTestIsFoeHideFoe() {
-
+    // TODO implement
   }
 
   @Test

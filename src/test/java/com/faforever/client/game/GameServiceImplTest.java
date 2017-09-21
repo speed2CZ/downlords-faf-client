@@ -21,6 +21,7 @@ import com.faforever.client.remote.domain.GameInfoMessage;
 import com.faforever.client.remote.domain.GameLaunchMessage;
 import com.faforever.client.replay.ReplayService;
 import com.faforever.client.reporting.ReportingService;
+import com.faforever.client.test.AbstractPlainJavaFxTest;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import javafx.beans.property.SimpleObjectProperty;
@@ -76,7 +77,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GameServiceImplTest {
+public class GameServiceImplTest extends AbstractPlainJavaFxTest {
 
   private static final long TIMEOUT = 5000;
   private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
@@ -135,16 +136,12 @@ public class GameServiceImplTest {
 
     when(preferencesService.getPreferences()).thenReturn(preferences);
     when(fafService.connectionStateProperty()).thenReturn(new SimpleObjectProperty<>());
-    when(replayService.startReplayServer(anyInt())).thenReturn(CompletableFuture.completedFuture(null));
-    when(iceAdapter.start()).thenReturn(CompletableFuture.completedFuture(GPG_PORT));
+    when(replayService.startReplayServer(anyInt())).thenReturn(completedFuture(null));
+    when(iceAdapter.start()).thenReturn(completedFuture(GPG_PORT));
     when(playerService.getCurrentPlayer()).thenReturn(Optional.of(PlayerBuilder.create("JUnit").defaultValues().get()));
 
     doAnswer(invocation -> {
-      try {
-        ((Runnable) invocation.getArgument(0)).run();
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+      ((Runnable) invocation.getArgument(0)).run();
       return null;
     }).when(executor).execute(any());
 
@@ -175,7 +172,7 @@ public class GameServiceImplTest {
     when(mapService.isInstalled("map")).thenReturn(true);
     when(fafService.requestJoinGame(game.getId(), null)).thenReturn(completedFuture(gameLaunchMessage));
     when(gameUpdater.update(any(), any(), any(), any())).thenReturn(completedFuture(null));
-    when(modService.getFeaturedMod(game.getFeaturedMod())).thenReturn(CompletableFuture.completedFuture(FeaturedModBeanBuilder.create().defaultValues().get()));
+    when(modService.getFeaturedMod(game.getFeaturedMod())).thenReturn(completedFuture(FeaturedModBeanBuilder.create().defaultValues().get()));
 
     CompletableFuture<Void> future = instance.joinGame(game, null).toCompletableFuture();
 
@@ -198,7 +195,7 @@ public class GameServiceImplTest {
     ).thenReturn(process);
     when(gameUpdater.update(any(), any(), any(), any())).thenReturn(completedFuture(null));
     when(fafService.requestHostGame(newGameInfo)).thenReturn(completedFuture(gameLaunchMessage));
-    when(mapService.download(newGameInfo.getMap())).thenReturn(CompletableFuture.completedFuture(null));
+    when(mapService.download(newGameInfo.getMap())).thenReturn(completedFuture(null));
 
     CountDownLatch gameStartedLatch = new CountDownLatch(1);
     CountDownLatch gameTerminatedLatch = new CountDownLatch(1);
@@ -362,11 +359,11 @@ public class GameServiceImplTest {
 
     FeaturedMod featuredMod = FeaturedModBeanBuilder.create().defaultValues().get();
 
-    when(fafService.startSearchLadder1v1(CYBRAN, GAME_PORT)).thenReturn(CompletableFuture.completedFuture(gameLaunchMessage));
-    when(gameUpdater.update(featuredMod, null, Collections.emptyMap(), Collections.emptySet())).thenReturn(CompletableFuture.completedFuture(null));
+    when(fafService.startSearchLadder1v1(CYBRAN, GAME_PORT)).thenReturn(completedFuture(gameLaunchMessage));
+    when(gameUpdater.update(featuredMod, null, Collections.emptyMap(), Collections.emptySet())).thenReturn(completedFuture(null));
     when(mapService.isInstalled("scmp_037")).thenReturn(false);
-    when(mapService.download("scmp_037")).thenReturn(CompletableFuture.completedFuture(null));
-    when(modService.getFeaturedMod(LADDER_1V1.getTechnicalName())).thenReturn(CompletableFuture.completedFuture(featuredMod));
+    when(mapService.download("scmp_037")).thenReturn(completedFuture(null));
+    when(modService.getFeaturedMod(LADDER_1V1.getTechnicalName())).thenReturn(completedFuture(featuredMod));
 
     CompletableFuture<Void> future = instance.startSearchLadder1v1(CYBRAN).toCompletableFuture();
 
@@ -389,7 +386,7 @@ public class GameServiceImplTest {
     when(forgedAllianceService.startGame(anyInt(), any(), any(), any(), anyInt(), eq(LOCAL_REPLAY_PORT), eq(false))).thenReturn(process);
     when(gameUpdater.update(any(), any(), any(), any())).thenReturn(completedFuture(null));
     when(fafService.requestHostGame(newGameInfo)).thenReturn(completedFuture(gameLaunchMessage));
-    when(mapService.download(newGameInfo.getMap())).thenReturn(CompletableFuture.completedFuture(null));
+    when(mapService.download(newGameInfo.getMap())).thenReturn(completedFuture(null));
 
     CountDownLatch gameRunningLatch = new CountDownLatch(1);
     instance.gameRunningProperty().addListener((observable, oldValue, newValue) -> {
@@ -436,11 +433,11 @@ public class GameServiceImplTest {
     Game game = GameBuilder.create().defaultValues().get();
     instance.currentGame.set(game);
 
-    when(modService.getFeaturedMod(game.getFeaturedMod())).thenReturn(CompletableFuture.completedFuture(FeaturedModBeanBuilder.create().defaultValues().get()));
+    when(modService.getFeaturedMod(game.getFeaturedMod())).thenReturn(completedFuture(FeaturedModBeanBuilder.create().defaultValues().get()));
     when(gameUpdater.update(any(), any(), any(), any())).thenReturn(completedFuture(null));
     when(fafService.requestHostGame(any())).thenReturn(completedFuture(GameLaunchMessageBuilder.create().defaultValues().get()));
-    when(modService.getFeaturedMod(game.getFeaturedMod())).thenReturn(CompletableFuture.completedFuture(FeaturedModBeanBuilder.create().defaultValues().get()));
-    when(mapService.download(game.getMapFolderName())).thenReturn(CompletableFuture.completedFuture(null));
+    when(modService.getFeaturedMod(game.getFeaturedMod())).thenReturn(completedFuture(FeaturedModBeanBuilder.create().defaultValues().get()));
+    when(mapService.download(game.getMapFolderName())).thenReturn(completedFuture(null));
 
     instance.onRehostRequest(new RehostRequestEvent());
 

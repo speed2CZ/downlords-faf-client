@@ -4,9 +4,6 @@ import javafx.scene.Node;
 
 public abstract class AbstractViewController<ROOT extends Node> implements Controller<ROOT> {
 
-  public AbstractViewController() {
-  }
-
   public void initialize() {
     ROOT root = getRoot();
     root.sceneProperty().addListener((observable, oldValue, newValue) -> {
@@ -29,13 +26,13 @@ public abstract class AbstractViewController<ROOT extends Node> implements Contr
    * Subclasses may override in order to perform actions when the view is being displayed.
    */
   protected void onDisplay() {
-
+    // To be overridden
   }
 
   /**
    * Subclasses may override in order to perform actions when the view is no longer being displayed.
    */
   protected void onHide() {
-
+    // To be overridden
   }
 }

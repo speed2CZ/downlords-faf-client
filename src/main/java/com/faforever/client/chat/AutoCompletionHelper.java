@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static java.util.Locale.US;
@@ -101,7 +102,7 @@ public class AutoCompletionHelper {
 
     possibleAutoCompletions.addAll(
         playerService.getPlayerNames().stream()
-            .filter(playerName -> playerName.toLowerCase(US).startsWith(autoCompletePartialName.toLowerCase()))
+            .filter(playerName -> playerName.toLowerCase(US).startsWith(autoCompletePartialName.toLowerCase(Locale.US)))
             .sorted()
             .collect(Collectors.toList())
     );

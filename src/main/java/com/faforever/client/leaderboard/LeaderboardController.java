@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
+import java.util.Locale;
 
 import static javafx.collections.FXCollections.observableList;
 
@@ -88,14 +89,14 @@ public class LeaderboardController extends AbstractViewController<Node> {
       } else {
         LeaderboardEntry foundPlayer = null;
         for (LeaderboardEntry leaderboardEntry : ratingTable.getItems()) {
-          if (leaderboardEntry.getUsername().toLowerCase().startsWith(newValue.toLowerCase())) {
+          if (leaderboardEntry.getUsername().toLowerCase(Locale.US).startsWith(newValue.toLowerCase(Locale.US))) {
             foundPlayer = leaderboardEntry;
             break;
           }
         }
         if (foundPlayer == null) {
           for (LeaderboardEntry leaderboardEntry : ratingTable.getItems()) {
-            if (leaderboardEntry.getUsername().toLowerCase().contains(newValue.toLowerCase())) {
+            if (leaderboardEntry.getUsername().toLowerCase(Locale.US).contains(newValue.toLowerCase(Locale.US))) {
               foundPlayer = leaderboardEntry;
               break;
             }

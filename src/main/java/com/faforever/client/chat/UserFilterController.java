@@ -5,7 +5,6 @@ import com.faforever.client.game.PlayerStatus;
 import com.faforever.client.i18n.I18n;
 import com.faforever.client.util.RatingUtil;
 import com.google.common.annotations.VisibleForTesting;
-import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextField;
@@ -16,6 +15,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.util.Locale;
 import java.util.Map;
 
 import static com.faforever.client.game.PlayerStatus.HOSTING;
@@ -80,8 +80,8 @@ public class UserFilterController implements Controller<Node> {
     if (clan == null) {
       return false;
     } else {
-      String lowerCaseSearchString = clan.toLowerCase();
-      return lowerCaseSearchString.contains(clanFilterField.getText().toLowerCase());
+      String lowerCaseSearchString = clan.toLowerCase(Locale.US);
+      return lowerCaseSearchString.contains(clanFilterField.getText().toLowerCase(Locale.US));
     }
   }
 
@@ -116,26 +116,23 @@ public class UserFilterController implements Controller<Node> {
     }
 
     PlayerStatus playerStatus = chatUserItemController.getPlayer().getStatus();
-    if (playerStatusFilter == LOBBYING) {
-      return LOBBYING == playerStatus || HOSTING == playerStatus;
-    } else {
-      return playerStatusFilter == playerStatus;
-    }
+    return playerStatusFilter == LOBBYING && (LOBBYING == playerStatus || HOSTING == playerStatus)
+        || playerStatusFilter == playerStatus;
   }
 
-  public void onGameStatusPlaying(ActionEvent actionEvent) {
+  public void onGameStatusPlaying() {
     playerStatusFilter = PLAYING;
     gameStatusMenu.setText(i18n.get("game.gameStatus.playing"));
     filterUsers();
   }
 
-  public void onGameStatusLobby(ActionEvent actionEvent) {
+  public void onGameStatusLobby() {
     playerStatusFilter = LOBBYING;
     gameStatusMenu.setText(i18n.get("game.gameStatus.lobby"));
     filterUsers();
   }
 
-  public void onGameStatusNone(ActionEvent actionEvent) {
+  public void onGameStatusNone() {
     playerStatusFilter = IDLE;
     gameStatusMenu.setText(i18n.get("game.gameStatus.none"));
     filterUsers();

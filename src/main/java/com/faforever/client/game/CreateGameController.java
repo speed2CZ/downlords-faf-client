@@ -51,6 +51,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -111,8 +112,8 @@ public class CreateGameController implements Controller<Pane> {
       if (newValue.isEmpty()) {
         filteredMapBeans.setPredicate(mapInfoBean -> true);
       } else {
-        filteredMapBeans.setPredicate(mapInfoBean -> mapInfoBean.getDisplayName().toLowerCase().contains(newValue.toLowerCase())
-            || mapInfoBean.getFolderName().toLowerCase().contains(newValue.toLowerCase()));
+        filteredMapBeans.setPredicate(mapInfoBean -> mapInfoBean.getDisplayName().toLowerCase(Locale.US).contains(newValue.toLowerCase(Locale.US))
+            || mapInfoBean.getFolderName().toLowerCase(Locale.US).contains(newValue.toLowerCase(Locale.US)));
       }
       if (!filteredMapBeans.isEmpty()) {
         mapListView.getSelectionModel().select(0);

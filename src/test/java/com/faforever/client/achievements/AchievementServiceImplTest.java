@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -69,7 +70,7 @@ public class AchievementServiceImplTest {
 
   @Before
   public void setUp() throws Exception {
-    instance = new AchievementServiceImpl(userService, fafService, notificationService, i18n, playerService, uiService, assetService);
+    instance = new AchievementServiceImpl(userService, fafService, assetService);
 
     when(userService.getUserId()).thenReturn(PLAYER_ID);
 
@@ -111,7 +112,7 @@ public class AchievementServiceImplTest {
   @Test
   public void testLoadAndCacheImageRevealed() throws Exception {
     AchievementDefinition achievementDefinition = AchievementDefinitionBuilder.create().defaultValues().get();
-    Path cacheSubDir = Paths.get("achievements").resolve(AchievementState.REVEALED.name().toLowerCase());
+    Path cacheSubDir = Paths.get("achievements").resolve(AchievementState.REVEALED.name().toLowerCase(Locale.US));
     instance.getImage(achievementDefinition, REVEALED);
     verify(assetService).loadAndCacheImage(new URL(achievementDefinition.getRevealedIconUrl()), cacheSubDir, null, 128, 128);
   }
@@ -119,7 +120,7 @@ public class AchievementServiceImplTest {
   @Test
   public void testLoadAndCacheImageUnlocked() throws Exception {
     AchievementDefinition achievementDefinition = AchievementDefinitionBuilder.create().defaultValues().get();
-    Path cacheSubDir = Paths.get("achievements").resolve(AchievementState.UNLOCKED.name().toLowerCase());
+    Path cacheSubDir = Paths.get("achievements").resolve(AchievementState.UNLOCKED.name().toLowerCase(Locale.US));
     instance.getImage(achievementDefinition, UNLOCKED);
     verify(assetService).loadAndCacheImage(new URL(achievementDefinition.getUnlockedIconUrl()), cacheSubDir, null, 128, 128);
   }

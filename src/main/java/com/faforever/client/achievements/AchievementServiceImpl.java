@@ -3,13 +3,9 @@ package com.faforever.client.achievements;
 import com.faforever.client.api.dto.AchievementDefinition;
 import com.faforever.client.api.dto.PlayerAchievement;
 import com.faforever.client.config.CacheNames;
-import com.faforever.client.i18n.I18n;
-import com.faforever.client.notification.NotificationService;
-import com.faforever.client.player.PlayerService;
 import com.faforever.client.remote.AssetService;
 import com.faforever.client.remote.FafService;
 import com.faforever.client.remote.UpdatedAchievementsMessage;
-import com.faforever.client.theme.UiService;
 import com.faforever.client.user.UserService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,6 +19,7 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -39,17 +36,12 @@ public class AchievementServiceImpl implements AchievementService {
 
   private final UserService userService;
   private final FafService fafService;
-  private final PlayerService playerService;
   private final AssetService assetService;
 
   @Inject
-  // TODO cut dependencies if possible
-  public AchievementServiceImpl(UserService userService, FafService fafService,
-                                NotificationService notificationService, I18n i18n, PlayerService playerService,
-                                UiService uiService, AssetService assetService) {
+  public AchievementServiceImpl(UserService userService, FafService fafService, AssetService assetService) {
     this.userService = userService;
     this.fafService = fafService;
-    this.playerService = playerService;
     this.assetService = assetService;
 
     playerAchievements = FXCollections.observableArrayList();
@@ -92,7 +84,7 @@ public class AchievementServiceImpl implements AchievementService {
       default:
         throw new UnsupportedOperationException("Not yet implemented");
     }
-    return assetService.loadAndCacheImage(url, Paths.get("achievements").resolve(achievementState.name().toLowerCase()),
+    return assetService.loadAndCacheImage(url, Paths.get("achievements").resolve(achievementState.name().toLowerCase(Locale.US)),
         null, ACHIEVEMENT_IMAGE_SIZE, ACHIEVEMENT_IMAGE_SIZE);
   }
 
