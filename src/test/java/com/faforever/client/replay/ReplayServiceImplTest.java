@@ -15,6 +15,7 @@ import com.faforever.client.preferences.PreferencesService;
 import com.faforever.client.remote.FafService;
 import com.faforever.client.reporting.ReportingService;
 import com.faforever.client.task.TaskService;
+import com.faforever.client.theme.UiService;
 import com.faforever.commons.replay.ReplayData;
 import org.junit.Before;
 import org.junit.Rule;
@@ -110,13 +111,15 @@ public class ReplayServiceImplTest {
   private ModService modService;
   @Mock
   private MapService mapService;
+  @Mock
+  private UiService uiService;
 
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
     instance = new ReplayServiceImpl(new ClientProperties(), preferencesService, replayFileReader, notificationService, gameService,
-        taskService, i18n, reportingService, applicationContext, platformService, replayServer, fafService, modService, mapService);
+        taskService, i18n, reportingService, applicationContext, platformService, replayServer, fafService, modService, mapService, uiService);
 
     when(preferencesService.getReplaysDirectory()).thenReturn(replayDirectory.getRoot().toPath());
     when(preferencesService.getCorruptedReplaysDirectory()).thenReturn(replayDirectory.getRoot().toPath().resolve("corrupt"));

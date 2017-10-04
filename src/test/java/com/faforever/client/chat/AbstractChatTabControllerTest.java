@@ -36,8 +36,6 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -149,9 +147,6 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
     when(userService.getUsername()).thenReturn("junit");
     when(preferencesService.getPreferences()).thenReturn(preferences);
     when(clientProperties.getVault()).thenReturn(vault);
-    when(uiService.loadFxml("theme/vault/replay/replay_detail.fxml")).thenReturn(replayDetailController);
-    when(uiService.loadFxml("theme/window.fxml")).thenReturn(windowController);
-    when(replayDetailController.getRoot()).thenReturn(new AnchorPane(new VBox()));
 
     instance = new AbstractChatTabController(clanService, webViewConfigurer, userService,
         chatService, platformService, preferencesService, playerService,

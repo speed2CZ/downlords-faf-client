@@ -42,4 +42,6 @@ public interface ReplayService {
   void enrich(Replay replay, Path path);
 
   CompletableFuture<Integer> getSize(int id);
+
+  void showExternalReplayInfo(Optional<Replay> replay, String replayId);
 }

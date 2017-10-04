@@ -9,7 +9,6 @@ import com.faforever.client.fx.Controller;
 import com.faforever.client.fx.JavaFxUtil;
 import com.faforever.client.fx.PlatformService;
 import com.faforever.client.fx.WebViewConfigurer;
-import com.faforever.client.fx.WindowController;
 import com.faforever.client.i18n.I18n;
 import com.faforever.client.main.NavigateEvent;
 import com.faforever.client.main.NavigationItem;
@@ -23,8 +22,6 @@ import com.faforever.client.player.Player;
 import com.faforever.client.player.PlayerService;
 import com.faforever.client.preferences.ChatPrefs;
 import com.faforever.client.preferences.PreferencesService;
-import com.faforever.client.replay.Replay;
-import com.faforever.client.replay.ReplayDetailController;
 import com.faforever.client.replay.ReplayService;
 import com.faforever.client.reporting.ReportingService;
 import com.faforever.client.theme.UiService;
@@ -59,8 +56,6 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -68,7 +63,6 @@ import javafx.stage.Popup;
 import javafx.stage.PopupWindow;
 import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import netscape.javascript.JSObject;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -178,7 +172,6 @@ public abstract class AbstractChatTabController implements Controller<Tab> {
   private ChangeListener<Boolean> stageFocusedListener;
   private Popup playerInfoPopup;
   private ChatMessage lastMessage;
-  private ReplayDetailController replayDetailController;
 
   @Inject
   // TODO cut dependencies
@@ -523,35 +516,7 @@ public abstract class AbstractChatTabController implements Controller<Tab> {
     String replayId = replayUrlMatcher.group(1);
 
     replayService.findById(Integer.parseInt(replayId))
-        .thenAccept(replay -> Platform.runLater(() -> displayReplyDetail(replay, url)));
-  }
-
-  private void displayReplyDetail(Optional<Replay> replay, String url) {
-    if (!replay.isPresent()) {
-      logger.warn("Replay with url: {} could not be found", url);
-      return;
-    }
-
-    replayDetailController = uiService.loadFxml("theme/vault/replay/replay_detail.fxml");
-
-    replayDetailController.setReplay(replay.get());
-
-    Node replayDetailRoot = replayDetailController.getRoot();
-    replayDetailRoot.setVisible(true);
-    replayDetailRoot.requestFocus();
-
-    Stage stage = new Stage(StageStyle.UNDECORATED);
-    WindowController windowController = uiService.loadFxml("theme/window.fxml");
-    windowController.configure(stage, (Region) ((AnchorPane) replayDetailRoot).getChildren().get(0), true);
-    replayDetailController.setOnClosure(stage::close);
-    stage.setWidth(((Region) replayDetailRoot).getWidth());
-    stage.setHeight(((Region) replayDetailRoot).getHeight());
-
-    Stage mainStage = StageHolder.getStage();
-    stage.setX(mainStage.getX());
-    stage.setY(mainStage.getY());
-
-    stage.show();
+        .thenAccept(replay -> Platform.runLater(() -> replayService.showExternalReplayInfo(replay, replayId)));
   }
 
   /**

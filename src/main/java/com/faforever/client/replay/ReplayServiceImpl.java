@@ -2,6 +2,7 @@ package com.faforever.client.replay;
 
 import com.faforever.client.config.ClientProperties;
 import com.faforever.client.fx.PlatformService;
+import com.faforever.client.fx.WindowController;
 import com.faforever.client.game.Game;
 import com.faforever.client.game.GameService;
 import com.faforever.client.game.KnownFeaturedMod;
@@ -22,11 +23,18 @@ import com.faforever.client.replay.Replay.ChatMessage;
 import com.faforever.client.replay.Replay.GameOption;
 import com.faforever.client.reporting.ReportingService;
 import com.faforever.client.task.TaskService;
+import com.faforever.client.theme.UiService;
+import com.faforever.client.ui.StageHolder;
 import com.faforever.commons.replay.ReplayData;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.net.UrlEscapers;
 import com.google.common.primitives.Bytes;
+import javafx.scene.Node;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Region;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import lombok.SneakyThrows;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
@@ -99,6 +107,7 @@ public class ReplayServiceImpl implements ReplayService {
   private final FafService fafService;
   private final ModService modService;
   private final MapService mapService;
+  private final UiService uiService;
 
   @Inject
   public ReplayServiceImpl(ClientProperties clientProperties, PreferencesService preferencesService,
@@ -106,7 +115,7 @@ public class ReplayServiceImpl implements ReplayService {
                            GameService gameService, TaskService taskService, I18n i18n,
                            ReportingService reportingService, ApplicationContext applicationContext,
                            PlatformService platformService, ReplayServer replayServer, FafService fafService,
-                           ModService modService, MapService mapService) {
+                           ModService modService, MapService mapService, UiService uiService) {
     this.clientProperties = clientProperties;
     this.preferencesService = preferencesService;
     this.replayFileReader = replayFileReader;
@@ -121,6 +130,7 @@ public class ReplayServiceImpl implements ReplayService {
     this.fafService = fafService;
     this.modService = modService;
     this.mapService = mapService;
+    this.uiService = uiService;
   }
 
   @VisibleForTesting
@@ -326,6 +336,36 @@ public class ReplayServiceImpl implements ReplayService {
     return CompletableFuture.supplyAsync(() -> noCatch(() -> new URL(String.format(clientProperties.getVault().getReplayDownloadUrlFormat(), id))
         .openConnection()
         .getContentLength()));
+  }
+
+  @Override
+  public void showExternalReplayInfo(Optional<Replay> replay, String replayId) {
+    if (!replay.isPresent()) {
+      logger.warn("Replay with id: {} could not be found", replayId);
+      return;
+    }
+
+    ReplayDetailController replayDetailController = uiService.loadFxml("theme/vault/replay/replay_detail.fxml");
+
+    replayDetailController.setReplay(replay.get());
+
+    Node replayDetailRoot = replayDetailController.getRoot();
+    replayDetailRoot.setVisible(true);
+    replayDetailRoot.requestFocus();
+
+    Stage stage = new Stage(StageStyle.UNDECORATED);
+    WindowController windowController = uiService.loadFxml("theme/window.fxml");
+    windowController.configure(stage, (Region) ((AnchorPane) replayDetailRoot).getChildren().get(0), true);
+    replayDetailController.setOnClosure(stage::close);
+    stage.setWidth(((Region) replayDetailRoot).getWidth());
+    stage.setHeight(((Region) replayDetailRoot).getHeight());
+
+    Stage mainStage = StageHolder.getStage();
+    stage.setX(mainStage.getX());
+    stage.setY(mainStage.getY());
+
+    stage.show();
+
   }
 
   @SneakyThrows

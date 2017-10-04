@@ -11,6 +11,7 @@ import com.faforever.client.map.MapService;
 import com.faforever.client.mod.FeaturedMod;
 import com.faforever.client.mod.ModService;
 import com.faforever.client.notification.NotificationService;
+import com.faforever.client.notification.PersistentNotification;
 import com.faforever.client.patch.GameUpdater;
 import com.faforever.client.player.PlayerBuilder;
 import com.faforever.client.player.PlayerService;
@@ -21,6 +22,7 @@ import com.faforever.client.remote.domain.GameInfoMessage;
 import com.faforever.client.remote.domain.GameLaunchMessage;
 import com.faforever.client.replay.ReplayService;
 import com.faforever.client.reporting.ReportingService;
+import com.faforever.client.test.AbstractPlainJavaFxTest;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import javafx.beans.property.SimpleObjectProperty;
@@ -76,7 +78,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GameServiceImplTest {
+public class GameServiceImplTest extends AbstractPlainJavaFxTest {
 
   private static final long TIMEOUT = 5000;
   private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
@@ -457,5 +459,21 @@ public class GameServiceImplTest {
     instance.onRehostRequest(new RehostRequestEvent());
 
     verify(forgedAllianceService, never()).startGame(anyInt(), any(), any(), any(), anyInt(), eq(LOCAL_REPLAY_PORT), anyBoolean());
+  }
+
+  @Test
+  public void testCurrentGameEndedBehaviour() throws Exception {
+    Game game = new Game();
+    game.setId(123);
+    game.setStatus(OPEN);
+    SimpleObjectProperty<Game> gameSimpleObjectProperty = new SimpleObjectProperty<>();
+    gameSimpleObjectProperty.set(game);
+    instance.setCurrentGameEndedListener(gameSimpleObjectProperty);
+    verify(notificationService, never()).addNotification(any(PersistentNotification.class));
+
+    game.setStatus(CLOSED);
+
+    WaitForAsyncUtils.waitForFxEvents();
+    verify(notificationService).addNotification(any(PersistentNotification.class));
   }
 }
